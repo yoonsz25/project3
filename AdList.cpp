@@ -65,5 +65,12 @@ void AdList::updateFriend(string a, string b){
 }
 
 void AdLis::print(){
-    
+    for(int i =0; i < TABLE_SIZE; i++){
+        cout << "Index " << i << ": " << arr[i].name << 
+            "\nFriends: ";
+        for(list<string::iterator it = arr[i].friends.begin(); it != arr[i].friends.end(); it++){
+            cout << " " << *it;
+        }
+        cout << "\n";
+    }
 }
