@@ -42,9 +42,9 @@ void AdList::insertHash(string name){
     cout << "index is: " << index << ", pointer to data is: " << arr[index].dataPointer << "count is: " << this->count << endl;
 }
 
-void AdList::insertData(vector<string> input, const char *profileName){
+void AdList::insertData(vector<string> input, FILE *pFile){
     insertHash(input[0]);
-    writeToFile(profileName, input[0],input[1],input[2]);
+    writeToFile(pFile, input[0],input[1],input[2]);
     ++this->count;
 }
 
@@ -52,20 +52,20 @@ void AdList::insertData(vector<string> input, const char *profileName){
 /*************************
             THINK OF BETTER NAMES FOR THESE STRINGS.
  */
-void AdList::writeToFile(const char *profileName, string name, string age, string occupation){
-    FILE *pFile;
+void AdList::writeToFile(FILE *pFile, string name, string age, string occupation){
+ // FILE *pFile;
     const char *name1 = name.c_str();
     const char *age1 = age.c_str();
     const char *occupation1 = occupation.c_str();
-
-    pFile = fopen(profileName, "w");
-    fseek(pFile, 0, SEEK_END); //find end of file to start appending data
+    int offset = this->count * 53;
+  // pFile = fopen(profileName, "w");
+    fseek(pFile, offset, SEEK_SET); //find end of file to start appending data
     fputs(name1, pFile); //write name to disk
-    fseek(pFile, 20, SEEK_SET); //find spot to place age
+    fseek(pFile, 20, SEEK_CUR); //find spot to place age
     fputs(age1, pFile); //write age to disk
-    fseek(pFile, 3, SEEK_SET); //find spot to write occupation
+    fseek(pFile, 3, SEEK_CUR); //find spot to write occupation
     fputs(occupation1, pFile); //write occupation to disk
-    fclose(pFile);
+  //fclose(pFile);
 }
 //returns true if a is a frined of b
 bool AdList::friendship(string a, string b){

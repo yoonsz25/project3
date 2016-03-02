@@ -37,13 +37,17 @@ int main()
 	{
 		string line;
 		const char *profileName = "ProfileData.txt";
+		FILE *pFile;
+		pFile = fopen(profileName, "w");
 		while(std::getline(f, line))
 		{
 			vector<string> words = split(line, ',');
 			// ... TO DO ...
-			a.insertData(words, profileName);
+			a.insertData(words, pFile);
 			
 		}
+		 fclose(pFile);
+
 		a.print();
 	}
 	return 0;

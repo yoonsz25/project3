@@ -20,8 +20,8 @@ class AdList{
 	public:
 		AdList();
 		int hash(std::string str, int seed=0);
-		void insertData(std::vector<std::string>, const char *profileName);
-		void writeToFile(const char *profileName, std::string name, std::string age, std::string occupation);
+		void insertData(std::vector<std::string>, FILE *pFile);
+		void writeToFile(FILE *pFile, std::string name, std::string age, std::string occupation);
 
 		void addFriend(std::string name, std::string nameFriend); //One friend
 		void updateFriend(std::string a, std::string b); //updates both friends' list
