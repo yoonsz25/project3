@@ -1,6 +1,9 @@
 #include "AdList.h"
 #include <iostream>
 #include <string>
+#include <vector>
+#include <stdio.h>
+
 
 using namespace std;
 
@@ -39,16 +42,43 @@ void AdList::insertHash(string name){
     cout << "index is: " << index << ", pointer to data is: " << arr[index].dataPointer << "count is: " << this->count << endl;
 }
 
-void AdList::insertData(string line){
+void AdList::insertData(vector<string> input, const char *profileName){
+    insertHash(input[0]);
+    writeToFile(profileName, input[0],input[1],input[2]);
     ++this->count;
-    string name ="";
-    
-    insertHash(name);
+}
 
+void AdList::writeToFile(const char *profileName, string name, string age, string occupation){
+    File *pFile;
+    pFile = fopen(profileName, "w");
+    fseek(pfile, 0, SEEK_END); //find end of file to start appending data
+    fputs(name, pFile); //write name to disk
+    fseek(pFile, 20, SEEK_SET); //find spot to place age
+    fputs(age, pFile); //write age to disk
+    fseek(pFile, 3, SEEK_SET); //find spot to write occupation
+    fputs(occupation, pFile); //write occupation to disk
+    fclose(pFile);
+}
+//returns true if a is a frined of b
+bool AdList::friendship(string a, string b){
+    int index = hash(a);
+    int i = 0;
+    while(arr[index].name.compare(a)!=0){
+        index = hash(a,i++);
+    }
+    for(list<string>::iterator it = arr[index].friends.begin(); it != arr[index].friends.end(); it++){
+        string check = *it;
+        if (b.compare(check) == 0)
+            return true;
+    }
+    return false;
 }
 
 //update's "name"'s friends list by adding nameFriend.
 void AdList::addFriend(string name, string nameFriend){
+    if(friendship(name, nameFriend)){
+        return;
+    }
     int index = hash(name);
     int i = 0;
     while(arr[index].name.compare(name)!=0){
@@ -64,11 +94,11 @@ void AdList::updateFriend(string a, string b){
     return;
 }
 
-void AdLis::print(){
+void AdList::print(){
     for(int i =0; i < TABLE_SIZE; i++){
         cout << "Index " << i << ": " << arr[i].name << 
             "\nFriends: ";
-        for(list<string::iterator it = arr[i].friends.begin(); it != arr[i].friends.end(); it++){
+        for(list<string>::iterator it = arr[i].friends.begin(); it != arr[i].friends.end(); it++){
             cout << " " << *it;
         }
         cout << "\n";

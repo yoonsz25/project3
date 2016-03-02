@@ -1,5 +1,7 @@
 #include <string>
 #include <list>
+#include <vector>
+#include <stdio.h>
 
 
 class AdList{
@@ -18,8 +20,11 @@ class AdList{
 	public:
 		AdList();
 		int hash(std::string str, int seed=0);
-		void insertData(std::string line);
+		void insertData(std::vector<std::string>, const char *profileName);
+		void writeToFile(const char *profileName, std::string name, std::string age, std::string occupation);
+
 		void addFriend(std::string name, std::string nameFriend); //One friend
-		void updateFriend(std::string a, std::string b) //updates both friends' list
+		void updateFriend(std::string a, std::string b); //updates both friends' list
+		bool friendship(std::string a, std::string b); //true if a is a friend of b
 		void print();
-}
+};
