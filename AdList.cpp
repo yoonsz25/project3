@@ -18,7 +18,7 @@ AdList::AdList(){
 }
 
 //returns the hash index for a certain string.
-int AdList::hash(string str, int seed=0){
+int AdList::hash(string str, int seed){
     int hash = seed;
     for(int i =0; i<str.length(); i++)
         hash = hash*101 + str[i];
@@ -28,7 +28,7 @@ int AdList::hash(string str, int seed=0){
 void AdList::insertHash(string name){
     int index = hash(name);
     for(int i = index; i < this->TABLE_SIZE; i++){
-        if(arr[i].compare("!") == 0){
+        if(arr[i].name.compare("!") == 0){
             index = i;
             break;
         }
@@ -48,15 +48,23 @@ void AdList::insertData(vector<string> input, const char *profileName){
     ++this->count;
 }
 
+
+/*************************
+            THINK OF BETTER NAMES FOR THESE STRINGS.
+ */
 void AdList::writeToFile(const char *profileName, string name, string age, string occupation){
-    File *pFile;
+    FILE *pFile;
+    const char *name1 = name.c_str();
+    const char *age1 = age.c_str();
+    const char *occupation1 = occupation.c_str();
+
     pFile = fopen(profileName, "w");
-    fseek(pfile, 0, SEEK_END); //find end of file to start appending data
-    fputs(name, pFile); //write name to disk
+    fseek(pFile, 0, SEEK_END); //find end of file to start appending data
+    fputs(name1, pFile); //write name to disk
     fseek(pFile, 20, SEEK_SET); //find spot to place age
-    fputs(age, pFile); //write age to disk
+    fputs(age1, pFile); //write age to disk
     fseek(pFile, 3, SEEK_SET); //find spot to write occupation
-    fputs(occupation, pFile); //write occupation to disk
+    fputs(occupation1, pFile); //write occupation to disk
     fclose(pFile);
 }
 //returns true if a is a frined of b

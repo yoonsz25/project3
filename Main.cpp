@@ -28,7 +28,8 @@ vector<string> split(string str, char delimiter)
 
 int main()
 {
-	AdList a();
+	AdList* pointerA = new AdList();
+	AdList a = *(pointerA);
 	ifstream f;
 	f.open("Generated1.txt", ios::in);
 	if(!f) cerr << "File not found" << endl;
