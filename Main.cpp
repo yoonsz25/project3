@@ -44,7 +44,6 @@ int main()
 			vector<string> words = split(line, ',');
 			// ... TO DO ...
 			a.insertData(words, pFile);
-			
 		}
 		 fclose(pFile);
 

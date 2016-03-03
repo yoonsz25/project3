@@ -19,7 +19,7 @@ AdList::AdList(){
 
 //returns the hash index for a certain string.
 int AdList::hash(string str, int seed){
-    int hash = seed;
+    size_t hash = seed;
     for(int i =0; i<str.length(); i++)
         hash = hash*101 + str[i];
     return hash%TABLE_SIZE;
@@ -27,19 +27,15 @@ int AdList::hash(string str, int seed){
 
 void AdList::insertHash(string name){
     int index = hash(name);
-    for(int i = index; i < this->TABLE_SIZE; i++){
-        if(arr[i].name.compare("!") == 0){
-            index = i;
-            break;
-        }
-        if(i == (this->TABLE_SIZE-1)){
-            i = 0;
-        }
+    int i = 1;
+    while(arr[index].name.compare(name)==0){
+        cout << arr[index].name.compare(name) << endl;
+        index = hash(name,i);
+        i++;
     }
-    
     arr[index].name = name;
     arr[index].dataPointer = count;
-    cout << "index is: " << index << ", pointer to data is: " << arr[index].dataPointer << "count is: " << this->count << endl;
+    cout << "index is: " << index << ", pointer to data is: " << arr[index].dataPointer << ", count is: " << this->count << endl;
 }
 
 void AdList::insertData(vector<string> input, FILE *pFile){
@@ -111,4 +107,11 @@ void AdList::print(){
         }
         cout << "\n";
     }
+}
+
+AdList::HashEntry AdList::get(int i){
+    if(i > this->TABLE_SIZE){
+        cerr << "index out of bounds" << endl;
+    }
+    return this->arr[i];
 }

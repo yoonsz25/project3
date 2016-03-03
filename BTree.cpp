@@ -7,5 +7,4 @@ using namespace std;
 BTree::BTree(){
     this->child = 5;
     this->data = 3;
-    
 }
