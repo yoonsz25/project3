@@ -19,7 +19,7 @@ AdList::AdList(){
 
 //returns the hash index for a certain string.
 int AdList::hash(string str, int seed){
-    size_t hash = seed;
+    size_t hash = seed;                     //-------- come back to this. Should i be using size_t? Ask a ta?
     for(int i =0; i<str.length(); i++)
         hash = hash*101 + str[i];
     return hash%TABLE_SIZE;
@@ -38,9 +38,20 @@ void AdList::insertHash(string name){
     cout << "index is: " << index << ", pointer to data is: " << arr[index].dataPointer << ", count is: " << this->count << endl;
 }
 
+/*
+    input[0]  == name of person
+    input[1]  == age of person
+    input[2]  == occupation of person
+    input[3+] == friends of person
+*/
 void AdList::insertData(vector<string> input, FILE *pFile){
     insertHash(input[0]);
     writeToFile(pFile, input[0],input[1],input[2]);
+    string originator = input[0];
+    for(int i = 3; i < input.size(); i++){
+        string friendI = input[i];
+        addFriend(originator, friendI);
+    }
     ++this->count;
 }
 
@@ -102,7 +113,8 @@ void AdList::print(){
     for(int i =0; i < TABLE_SIZE; i++){
         cout << "Index " << i << ": " << arr[i].name << 
             "\nFriends: ";
-        for(list<string>::iterator it = arr[i].friends.begin(); it != arr[i].friends.end(); it++){
+        list<string> s = arr[i].friends;
+        for(list<string>::const_iterator it = s.begin(); it != s.end(); ++it){
             cout << " " << *it;
         }
         cout << "\n";
