@@ -54,17 +54,17 @@ void AdList::insertData(vector<string> input, FILE *pFile){
  */
 void AdList::writeToFile(FILE *pFile, string name, string age, string occupation){
  // FILE *pFile;
-    const char *name1 = name.c_str();
-    const char *age1 = age.c_str();
-    const char *occupation1 = occupation.c_str();
+    const char *cName = name.c_str();
+    const char *cAge = age.c_str();
+    const char *cOccupation = occupation.c_str();
     int offset = this->count * 53;
   // pFile = fopen(profileName, "w");
     fseek(pFile, offset, SEEK_SET); //find end of file to start appending data
-    fputs(name1, pFile); //write name to disk
+    fputs(cName, pFile); //write name to disk
     fseek(pFile, 20, SEEK_CUR); //find spot to place age
-    fputs(age1, pFile); //write age to disk
+    fputs(cAge, pFile); //write age to disk
     fseek(pFile, 3, SEEK_CUR); //find spot to write occupation
-    fputs(occupation1, pFile); //write occupation to disk
+    fputs(cOccupation, pFile); //write occupation to disk
   //fclose(pFile);
 }
 //returns true if a is a frined of b
