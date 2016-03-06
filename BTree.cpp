@@ -10,6 +10,7 @@ BTree::BTree(){
     this->maxChild = 5;         //min 3, max 5
     this->maxLeaves = 3;        //min 2, max 3
     root->leaf = true;
+    root->parent = nullptr;
     for(int i = 0; i < maxChild; i++)
         root->childPtr[i] = nullptr;    //nullptr evaluates to false in boolean operations
     for(int i = 0; i < maxLeaves; i++){
@@ -54,27 +55,32 @@ BTree::Person BTree::find(BTreeNode* n, string a){
 void BTree::insert(std::string a, int dataPtr){
     //first find where the name should go.
     Person *p = new Person;
-    p.name = a;
-    p.dataPtr = dataPtr;
-    if(this->root->numChildren == 5){
-        //split the BTreeNode
-        
-        
-        //What goes here
+    p->name = a;
+    p->dataPtr = dataPtr;
+
+    BTreeNode *n = root;
+    int keyNum = 0;
+ 
+    //search for where item goes;
+    while(keyNum < n->numKeys && n->leaf == false){
+    	if(n->keys[keyNum].compare(a) < 0){
+    		n = n->childPtr[keyNum];
+    		keyNum = 0;
+    	}
+    	if(n->numKeys == keyNum+1 && n->keys[keyNum].compare(a) > 0){
+    		n = n->childPtr[keyNum+1];
+    		keyNum = 0;
+    	}
+    	else
+    		++keyNum;
     }
-    else{
-        insertNonFull(root, p);
-    }
+    // now n should be at BTreeNode which is a leaf
+
+
+    
 }
 
-void BTree::insertNonFull(BTreeNode *n, Person *p){
-    if(n->leaf){
-        insertLeaf(n, p);
-    }
-    else{
-        //traverse through tree to find where p goes;
-    }
-}
+
 
 void BTree::insertLeaf(BTreeNode *n, Person *p){
     if(n->leaves[0].name.compare("!") == 0){
@@ -87,4 +93,39 @@ void BTree::insertLeaf(BTreeNode *n, Person *p){
     for(int i = 0; i < this->maxLeaves; i++){
     }
 }
+
+
+//parent[childNode] is the node which is full. Need to split that one.
+void BTree::splitChild(BTreeNode *parent, int childNode){
+
+
+
+
+
+
+
+}
+
+//no need for nlogn sort. Sorting 3 or less items
+//should use a better sort if scaling
+//bubble sort?
+void BTree::sort(Person *leaves, int numLeaves){
+	
+	Person tmp;
+	for(int i = 0; i < numLeaves; i++){
+		for(int j = i; j < numLeaves; i++){
+			if(leaves[i]->name.compare(leaves[j]->name) > 0){
+				tmp = leaves[i];
+				leaves[i] = leaves[j];
+				leaves[j] = tmp;
+			}
+		}
+	}
+}
+
+
+
+
+
+
 

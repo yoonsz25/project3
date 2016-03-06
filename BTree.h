@@ -20,6 +20,7 @@ class BTree{
        void insertNonFull(BTreeNode *n, Person *p);
        void splitChild();
        void insertLeaf(BTreeNode *n, Person *p);
+       void sort(Person *leaves, int numLeaves);
        
        void print();
         
