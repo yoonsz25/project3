@@ -19,10 +19,10 @@ AdList::AdList(){
 
 //returns the hash index for a certain string.
 int AdList::hash(string str, int seed){
-    size_t hash = seed;                     //-------- come back to this. Should i be using size_t? Ask a ta?
+    int hash = seed;                    
     for(int i =0; i<str.length(); i++)
-        hash = hash*101 + str[i];
-    return hash%TABLE_SIZE;
+        hash = (hash*101 + str[i])%TABLE_SIZE;
+    return hash;
 }
 
 void AdList::insertHash(string name){

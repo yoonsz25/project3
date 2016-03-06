@@ -1,3 +1,6 @@
+#ifndef __ADLIST_H__
+#define __ADLIST_H__
+
 #include <string>
 #include <list>
 #include <vector>
@@ -31,3 +34,5 @@ class AdList{
 		HashEntry get(int i);
 
 };
+
+#endif

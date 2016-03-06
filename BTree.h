@@ -1,29 +1,33 @@
+#ifndef __BTREE_H__
+#define __BTREE_H__
+
 #include <string>
+#include "BTreeNode.h"
 
 class BTree{
     private:
-        struct Node{
-            bool leaf; //dont really need. Will know if leaf by looking at next level. If null is leaf. Else not leaf
-            Node** childPtr; // 5 pointers to children
-            std::string* keys; //4 keys 
-            Person* leaves; //3 datas
-        };
-        struct Person{
-            std::string name;
-            int dataPtr;
-        };
-        int child;
-        int data;
+        BTreeNode* root;
+        int maxChild;
+        int maxLeaves;
     public:
         BTree();
         
+        //BTree(int child, int leaves);
         //come back and update return types of function. 
         //May need helper functions
-        bool isLeaf();
-        void insert(std::string name, int dataPtr);
-        void print();
+    
+       void insert(std::string a, int dataPtr); // a = name. dataptr = disk pointer. Both make up person
+       void insertNonFull(BTreeNode *n, Person *p);
+       void splitChild();
+       void insertLeaf(BTreeNode *n, Person *p);
+       
+       void print();
         
-        void find(std::string name);
-        std::string retrieveData(std::string name);
-        void RangeQuery(std::string firstPerson, std::string lastPerson);
-}
+       Person find(BTreeNode n, std::string a);
+       std::string retrieveData(std::string a);
+       void RangeQuery(std::string firstPerson, std::string lastPerson);
+       
+       
+};
+
+#endif
