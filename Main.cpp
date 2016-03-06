@@ -31,7 +31,7 @@ int main()
 	AdList* pointerA = new AdList();
 	AdList a = *(pointerA);
 	ifstream f;
-	f.open("Generated1.txt", ios::in);
+	f.open("inputs/Generated1.txt", ios::in);
 	if(!f) cerr << "File not found" << endl;
 	else
 	{
