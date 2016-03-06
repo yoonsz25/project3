@@ -83,15 +83,22 @@ void BTree::insert(std::string a, int dataPtr){
 
 
 void BTree::insertLeaf(BTreeNode *n, Person *p){
-    if(n->leaves[0].name.compare("!") == 0){
-        n->leaves[0] = *p;
-    }
-    Person *tmp = new Person;
    // need to sort the items in this loop
    // also need to check num leaves. If numLeavs == maxLeaves. Need to split nodes... Difficult?
+   if(n->leaf == false){
+   		cout << "this node is not a leaf. Why is insertLeaf being called on it. Requires debugging." << endl;
+   }
+
+   for(int i = 0; i < this->maxLeaves; i++){
+   		if(n->leaves[i].compare("!") == 0){
+   			n->leaves[i] = p;
+   			cout << p.name << ": succesfully inserted into index " << i << endl;
+   			sort(n->leaves, i+1);
+   			return;
+   		}
+   }
+   cout << "item not succesfully inserted into leaves. Thus, leaves are full and we have to fix the tree" << endl;
    
-    for(int i = 0; i < this->maxLeaves; i++){
-    }
 }
 
 
