@@ -3,6 +3,8 @@
 
 #include <string>
  
+
+            
 class BTreeNode{
        friend class BTree;
       
@@ -23,13 +25,14 @@ class BTreeNode{
             Person* leaves; //3 datas
 
             BTreeNode *parent; // points to parent of current BTreeNode. If root, points to nullptr
-         //   BTreeNode *next;   // points to the next BTreeNode with leaves for easy range queries. If leaf is false, this should point to nullptr
+            BTreeNode *next;   // points to the next BTreeNode with leaves for easy range queries. If leaf is false, this should point to nullptr
 
             int numLeaves;
             int numChildren; // dont need if we have numKeys
             int numKeys;
         
         public:
+            
             BTreeNode();
             
 };

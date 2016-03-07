@@ -6,18 +6,11 @@
 using namespace std;
 
 BTree::BTree(){
-    root = new BTreeNode;
+    root = new BTreeNode();
     this->maxChild = 5;         //min 3, max 5
     this->maxLeaves = 3;        //min 2, max 3
     root->leaf = true;
-    root->parent = nullptr;
-    for(int i = 0; i < maxChild; i++)
-        root->childPtr[i] = nullptr;    //nullptr evaluates to false in boolean operations
-    for(int i = 0; i < maxLeaves; i++){
-        Person *p = new Person;
-        leaves[i] = p;
-    }
-           
+   //nullptr evaluates to false in boolean operations
 }
 
 
@@ -75,9 +68,7 @@ void BTree::insert(std::string a, int dataPtr){
     		++keyNum;
     }
     // now n should be at BTreeNode which is a leaf
-
-
-    
+    insertLeaf(n,p);
 }
 
 
@@ -88,27 +79,108 @@ void BTree::insertLeaf(BTreeNode *n, Person *p){
    if(n->leaf == false){
    		cout << "this node is not a leaf. Why is insertLeaf being called on it. Requires debugging." << endl;
    }
-
-   for(int i = 0; i < this->maxLeaves; i++){
-   		if(n->leaves[i].compare("!") == 0){
-   			n->leaves[i] = p;
-   			cout << p.name << ": succesfully inserted into index " << i << endl;
-   			sort(n->leaves, i+1);
-   			return;
-   		}
-   }
-   cout << "item not succesfully inserted into leaves. Thus, leaves are full and we have to fix the tree" << endl;
    
+   if(n->numLeaves == this->maxLeaves){
+          splitLeaf(n, p);  
+   }
+    else{
+       for(int i = 0; i < this->maxLeaves; i++){
+       		if(n->leaves[i].compare("!") == 0){
+       			n->leaves[i] = p;
+       			cout << p.name << ": succesfully inserted into index " << i << endl;
+       			++(n->numLeaves);
+       			sort(n->leaves, n->numLeaves);
+       		    return;
+       	    }
+        }
+    }
+}
+
+//preconditions: if the target leaf is full.
+//postcondition: new leaf is inserted into the BTree
+void BTree::splitLeaf(BTreeNode *leaf, Person* p){
+    BTreeNode* up = leaf->parent;
+    BTreeNode* sib = leaf->next;
+    
+    BTreeNode* splitted = new BTreeNode();
+    splitted->leaf = true;
+    splitted->parent = up;
+    //if this doesn't work - make a sort() function to sort array of Person
+    if(sib!=NULL){
+        splitted->next = sib;
+        leaf=>next = splitted;
+    }
+    if(p->name.compare(leaf->leaves[1].name) >= 0){
+        if(p->name.compare(leaf->leaves[2].name) >= 0){
+            splitted->leaves[1] = p;
+            splitted->leaves[0] = leaf->leaves[2];
+        }
+        else{
+            splitted->leaves[0] = p;
+            splitted->leaves[1] = leaf->leaves[2];
+        }
+    }
+    else{
+        splitted->leaves[0] = leaf->leaves[1];
+        splitted->leaves[1] = leaf->leaves[2];
+        if(p->name.compare(leaf->leaves[0].name) <= 0){
+            leaf->leaves[1] = leaf->leaves[0];
+            leaf->leaves[0] = p;
+        }
+        else{
+            leaf->leaves[1] = p;
+        }
+    }
+    leaf->leaves[2] = NULL;
+    leaf->numLeaves = 2;
+    splitted->numLeaves = 2;
+    for(int i = 0; i < numKeys-1; i++){
+        if(up->keys[i].compare(splitted->leaves[0].name)<=0 && up->keys[i+1].compare(splitted->leaves[0].name) > 0){
+            string temp = up->keys[i+1];
+            up->keys[j] = splitted->leaves[0].name;
+            for(int j = i+1; j < numKeys; j++){
+                
+            }
+        }
+    }
 }
 
 
-//parent[childNode] is the node which is full. Need to split that one.
-void BTree::splitChild(BTreeNode *parent, int childNode){
+//n->parent[childNode] is the node which is full. Need to split that one.
+void BTree::splitParent(BTreeNode *parent, int childNode){
 
-
-
-
-
+    //debugging stuff
+    //first check if parent is full. 
+    if(parent->numChildren != 5){
+        cout << "this parent has less than 5 children. Does it need to be split still" << endl;
+    }
+    //parent(current node) is full. Check if its parent is full
+    if(parent->parent->numChildren == 5){
+        //code to split. Recursion? Iterativiely? 
+        split(parent->parent, ...??? );
+    }
+    
+    //since parent of parent does not have 5 children. We can split current node and move up
+    else{
+        //5 child ptrs
+        BTreeNode *tmp = new BTreeNode();
+        tmp->numChildren = ceil((parent->numChildren)/2);
+        tmp->numKeys = parent->numKeys/2;
+        
+        //for(int i = ceil(parent->numchildren/2); i<parent->numChildren; i++)
+        int tmpChildCounter = 0;
+        //set the fields for the tmp BTreeNode;
+        for(int i = 3; i < parent->numChildren; i++){
+            if(i<this->maxChild-1){
+                tmp->keys[tmpChildCounter] = parent->childPtr[i];
+            }
+            tmp->childPtr[tmpChildCounter] = parent->childPtr[i];
+            parent->childPtr[i] = nullptr;
+            ++tmpChildCounter;
+        }
+        
+        //set
+    }
 
 
 }
@@ -121,7 +193,7 @@ void BTree::sort(Person *leaves, int numLeaves){
 	Person tmp;
 	for(int i = 0; i < numLeaves; i++){
 		for(int j = i; j < numLeaves; i++){
-			if(leaves[i]->name.compare(leaves[j]->name) > 0){
+			if(leaves[i].name.compare(leaves[j].name) > 0){
 				tmp = leaves[i];
 				leaves[i] = leaves[j];
 				leaves[j] = tmp;
