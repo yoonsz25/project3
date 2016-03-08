@@ -2,6 +2,7 @@
 #include "BTreeNode.h"
 #include <iostream>
 #include <string>
+#include <cmath>
 
 using namespace std;
 
@@ -13,8 +14,8 @@ BTree::BTree(){
    //nullptr evaluates to false in boolean operations
 }
 
-
-BTree::Person BTree::find(BTreeNode* n, string a){
+/*
+BTreeNode::Person BTree::find(BTreeNode* n, string a){
     if(n==NULL){
         return NULL;
     }
@@ -41,39 +42,13 @@ BTree::Person BTree::find(BTreeNode* n, string a){
         return NULL;
     }
 }
-
-
-//dataptr is the ptr to the file on disk (dataptr*53)
-
-void BTree::insert(std::string a, int dataPtr){
-    //first find where the name should go.
-    Person *p = new Person;
-    p->name = a;
-    p->dataPtr = dataPtr;
-
-    BTreeNode *n = root;
-    int keyNum = 0;
- 
-    //search for where item goes;
-    while(keyNum < n->numKeys && n->leaf == false){
-    	if(n->keys[keyNum].compare(a) < 0){
-    		n = n->childPtr[keyNum];
-    		keyNum = 0;
-    	}
-    	if(n->numKeys == keyNum+1 && n->keys[keyNum].compare(a) > 0){
-    		n = n->childPtr[keyNum+1];
-    		keyNum = 0;
-    	}
-    	else
-    		++keyNum;
-    }
-    // now n should be at BTreeNode which is a leaf
-    insertLeaf(n,p);
-}
+*/
 
 
 
-void BTree::insertLeaf(BTreeNode *n, Person *p){
+
+
+void BTree::insertLeaf(BTreeNode *n, BTreeNode::Person *p){
    // need to sort the items in this loop
    // also need to check num leaves. If numLeavs == maxLeaves. Need to split nodes... Difficult?
    if(n->leaf == false){
@@ -85,10 +60,11 @@ void BTree::insertLeaf(BTreeNode *n, Person *p){
    }
     else{
        for(int i = 0; i < this->maxLeaves; i++){
-       		if(n->leaves[i].compare("!") == 0){
-       			n->leaves[i] = p;
-       			cout << p.name << ": succesfully inserted into index " << i << endl;
+       		if(n->leaves[i].name.compare("!") == 0){
+       			n->leaves[i] = *p;
+       			cout << p->name << ": succesfully inserted into index " << i << endl;
        			++(n->numLeaves);
+                cout << n->numLeaves << endl;
        			sort(n->leaves, n->numLeaves);
        		    return;
        	    }
@@ -98,7 +74,8 @@ void BTree::insertLeaf(BTreeNode *n, Person *p){
 
 //preconditions: if the target leaf is full.
 //postcondition: new leaf is inserted into the BTree
-void BTree::splitLeaf(BTreeNode *leaf, Person* p){
+void BTree::splitLeaf(BTreeNode *leaf, BTreeNode::Person* p){
+  /*
     BTreeNode* up = leaf->parent;
     BTreeNode* sib = leaf->next;
     
@@ -143,6 +120,7 @@ void BTree::splitLeaf(BTreeNode *leaf, Person* p){
             }
         }
     }
+    */
 }
 
 
@@ -157,7 +135,7 @@ void BTree::splitParent(BTreeNode *parent, int childNode){
     //parent(current node) is full. Check if its parent is full
     if(parent->parent->numChildren == 5){
         //code to split. Recursion? Iterativiely? 
-        split(parent->parent, ...??? );
+        splitParent(parent->parent, 1 );
     }
     
     //since parent of parent does not have 5 children. We can split current node and move up
@@ -171,8 +149,8 @@ void BTree::splitParent(BTreeNode *parent, int childNode){
         int tmpChildCounter = 0;
         //set the fields for the tmp BTreeNode;
         for(int i = 3; i < parent->numChildren; i++){
-            if(i<this->maxChild-1){
-                tmp->keys[tmpChildCounter] = parent->childPtr[i];
+            if(i < this->maxChild-1){
+                tmp->keys[tmpChildCounter] = parent->keys[i];
             }
             tmp->childPtr[tmpChildCounter] = parent->childPtr[i];
             parent->childPtr[i] = nullptr;
@@ -188,11 +166,11 @@ void BTree::splitParent(BTreeNode *parent, int childNode){
 //no need for nlogn sort. Sorting 3 or less items
 //should use a better sort if scaling
 //bubble sort?
-void BTree::sort(Person *leaves, int numLeaves){
+void BTree::sort(BTreeNode::Person *leaves, int numLeaves){
 	
-	Person tmp;
+	BTreeNode::Person tmp;
 	for(int i = 0; i < numLeaves; i++){
-		for(int j = i; j < numLeaves; i++){
+		for(int j = i; j < numLeaves; j++){
 			if(leaves[i].name.compare(leaves[j].name) > 0){
 				tmp = leaves[i];
 				leaves[i] = leaves[j];
@@ -202,6 +180,46 @@ void BTree::sort(Person *leaves, int numLeaves){
 	}
 }
 
+
+/*
+    two functions 
+    insert - does all insert
+    need helper that inserts btreenode
+    split- only splits and returns btreenode
+*/
+
+//dataptr is the ptr to the file on disk (dataptr*53)
+
+void BTree::insert(std::string a, int dataPtr){
+    //first find where the name should go.
+    BTreeNode::Person *p = new BTreeNode::Person();
+    p->name = a;
+    p->dataPtr = dataPtr;
+
+    BTreeNode *n = root;
+    int keyNum = 0;
+ 
+    //search for where item goes;
+    while(keyNum < n->numKeys && n->leaf == false){
+        if(n->keys[keyNum].compare(a) < 0){
+            n = n->childPtr[keyNum];
+            keyNum = 0;
+        }
+        if(n->numKeys == keyNum+1 && n->keys[keyNum].compare(a) > 0){
+            n = n->childPtr[keyNum+1];
+            keyNum = 0;
+        }
+        else
+            ++keyNum;
+    }
+    // now n should be at BTreeNode which is a leaf
+    insertLeaf(n, p);
+
+}
+
+
+void insertNode(BTreeNode* n);
+void split(BTreeNode *n);
 
 
 

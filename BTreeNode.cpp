@@ -1,17 +1,18 @@
 #include "BTreeNode.h"
+#include <iostream>
+//using namespace std;
 
 BTreeNode::BTreeNode(){
     childPtr = new BTreeNode*[5];
-    for(int i = 0; i < maxChild; i++)
-        root->childPtr[i] = nullptr; 
-    keys = new string[4];
-    for (int i 0; i<4; i++)
-        keys[i] = "?";
+    for(int i = 0; i < 5; i++) //was max child
+        this->childPtr[i] = nullptr; 
+
+    keys = new std::string[4];
+    for (int i = 0; i<4; i++)
+        this->keys[i] = "?";
+
     leaves = new Person[3];
-    for(int i = 0; i < maxLeaves; i++){
-        Person *p = new Person;
-        leaves[i] = p;
-    }
+
     parent = nullptr;
     next = nullptr;
     leaf = false;
