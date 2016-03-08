@@ -74,54 +74,53 @@ void BTree::insertLeaf(BTreeNode *n, BTreeNode::Person *p){
 
 //preconditions: if the target leaf is full.
 //postcondition: new leaf is inserted into the BTree
-void BTree::splitLeaf(BTreeNode *leaf, BTreeNode::Person* p){
-  /*
-    BTreeNode* up = leaf->parent;
-    BTreeNode* sib = leaf->next;
-    
-    BTreeNode* splitted = new BTreeNode();
-    splitted->leaf = true;
-    splitted->parent = up;
-    //if this doesn't work - make a sort() function to sort array of Person
-    if(sib!=NULL){
-        splitted->next = sib;
-        leaf=>next = splitted;
-    }
-    if(p->name.compare(leaf->leaves[1].name) >= 0){
-        if(p->name.compare(leaf->leaves[2].name) >= 0){
-            splitted->leaves[1] = p;
-            splitted->leaves[0] = leaf->leaves[2];
-        }
-        else{
-            splitted->leaves[0] = p;
-            splitted->leaves[1] = leaf->leaves[2];
-        }
+void BTree::splitLeaf(BTreeNode *leaf, Person* p){
+  BTreeNode* up = leaf->parent;
+  BTreeNode* sib = leaf->next;
+
+  BTreeNode* splitted = new BTreeNode();
+  splitted->leaf = true;
+  splitted->parent = up;
+  //if this doesn't work - make a sort() function to sort array of Person
+  if(sib!=NULL){
+    splitted->next = sib;
+    leaf=>next = splitted;
+  }
+  if(p->name.compare(leaf->leaves[1].name) >= 0){
+    if(p->name.compare(leaf->leaves[2].name) >= 0){
+      splitted->leaves[1] = p;
+      splitted->leaves[0] = leaf->leaves[2];
     }
     else{
-        splitted->leaves[0] = leaf->leaves[1];
-        splitted->leaves[1] = leaf->leaves[2];
-        if(p->name.compare(leaf->leaves[0].name) <= 0){
-            leaf->leaves[1] = leaf->leaves[0];
-            leaf->leaves[0] = p;
-        }
-        else{
-            leaf->leaves[1] = p;
-        }
+      splitted->leaves[0] = p;
+      splitted->leaves[1] = leaf->leaves[2];
     }
-    leaf->leaves[2] = NULL;
-    leaf->numLeaves = 2;
-    splitted->numLeaves = 2;
-    for(int i = 0; i < numKeys-1; i++){
-        if(up->keys[i].compare(splitted->leaves[0].name)<=0 && up->keys[i+1].compare(splitted->leaves[0].name) > 0){
-            string temp = up->keys[i+1];
-            up->keys[j] = splitted->leaves[0].name;
-            for(int j = i+1; j < numKeys; j++){
-                
-            }
-        }
+  }
+  else{
+    splitted->leaves[0] = leaf->leaves[1];
+    splitted->leaves[1] = leaf->leaves[2];
+    if(p->name.compare(leaf->leaves[0].name) <= 0){
+      leaf->leaves[1] = leaf->leaves[0];
+      leaf->leaves[0] = p;
     }
-    */
+    else{
+      leaf->leaves[1] = p;
+    }
+  }
+  leaf->leaves[2] = NULL;
+  leaf->numLeaves = 2;
+  splitted->numLeaves = 2;
+  for(int i = 0; i < numKeys-1; i++){
+    if(up->keys[i].compare(splitted->leaves[0].name)<=0 && up->keys[i+1].compare(splitted->leaves[0].name) > 0){
+      string temp = up->keys[i+1];
+      up->keys[j] = splitted->leaves[0].name;
+      for(int j = i+1; j < numKeys; j++){
+
+      }
+    }
+  }
 }
+
 
 
 //n->parent[childNode] is the node which is full. Need to split that one.
