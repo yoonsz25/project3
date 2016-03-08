@@ -52,7 +52,7 @@ void BTree::insertLeaf(BTreeNode *n, BTreeNode::Person *p){
    // need to sort the items in this loop
    // also need to check num leaves. If numLeavs == maxLeaves. Need to split nodes... Difficult?
    if(n->leaf == false){
-   		cout << "this node is not a leaf. Why is insertLeaf being called on it. Requires debugging." << endl;
+        cout << "this node is not a leaf. Why is insertLeaf being called on it. Requires debugging." << endl;
    }
    
    if(n->numLeaves == this->maxLeaves){
@@ -60,21 +60,23 @@ void BTree::insertLeaf(BTreeNode *n, BTreeNode::Person *p){
    }
     else{
        for(int i = 0; i < this->maxLeaves; i++){
-       		if(n->leaves[i].name.compare("!") == 0){
-       			n->leaves[i] = *p;
-       			cout << p->name << ": succesfully inserted into index " << i << endl;
-       			++(n->numLeaves);
+            if(n->leaves[i].name.compare("!") == 0){
+                n->leaves[i] = *p;
+                cout << p->name << ": succesfully inserted into index " << i << endl;
+                ++(n->numLeaves);
                 cout << n->numLeaves << endl;
-       			sort(n->leaves, n->numLeaves);
-       		    return;
-       	    }
+                sort(n->leaves, n->numLeaves);
+                return;
+            }
         }
     }
 }
 
 //preconditions: if the target leaf is full.
 //postcondition: new leaf is inserted into the BTree
-void BTree::splitLeaf(BTreeNode *leaf, Person* p){
+
+
+void BTree::splitLeaf(BTreeNode *leaf, BTreeNode::Person* p){
   BTreeNode* up = leaf->parent;
   BTreeNode* sib = leaf->next;
 
@@ -84,15 +86,15 @@ void BTree::splitLeaf(BTreeNode *leaf, Person* p){
   //if this doesn't work - make a sort() function to sort array of Person
   if(sib!=NULL){
     splitted->next = sib;
-    leaf=>next = splitted;
+    leaf->next = splitted;
   }
   if(p->name.compare(leaf->leaves[1].name) >= 0){
     if(p->name.compare(leaf->leaves[2].name) >= 0){
-      splitted->leaves[1] = p;
+      splitted->leaves[1] = *p;
       splitted->leaves[0] = leaf->leaves[2];
     }
     else{
-      splitted->leaves[0] = p;
+      splitted->leaves[0] = *p;
       splitted->leaves[1] = leaf->leaves[2];
     }
   }
@@ -101,21 +103,32 @@ void BTree::splitLeaf(BTreeNode *leaf, Person* p){
     splitted->leaves[1] = leaf->leaves[2];
     if(p->name.compare(leaf->leaves[0].name) <= 0){
       leaf->leaves[1] = leaf->leaves[0];
-      leaf->leaves[0] = p;
+      leaf->leaves[0] = *p;
     }
     else{
-      leaf->leaves[1] = p;
+      leaf->leaves[1] = *p;
     }
   }
-  leaf->leaves[2] = NULL;
+  leaf->leaves[2] = *(new Person());
   leaf->numLeaves = 2;
   splitted->numLeaves = 2;
-  for(int i = 0; i < numKeys-1; i++){
-    if(up->keys[i].compare(splitted->leaves[0].name)<=0 && up->keys[i+1].compare(splitted->leaves[0].name) > 0){
-      string temp = up->keys[i+1];
-      up->keys[j] = splitted->leaves[0].name;
-      for(int j = i+1; j < numKeys; j++){
-
+  if(up->numChildren<5){
+    up->childPtr[up->numChildren] = splitted;
+    up->numChildren++;
+    up->keys[up->numKeys]= splitted->leaves[0].name;
+    up->numKeys++;
+    for(int i = 0; i < numChildren; i++){
+      if(up->childPtr[i]->leaves[0].name.compare(up->childPtr[numChildren-1]->leaves[0].name)){
+        BTreeNode* temp = up->childPtr[i];
+        up->childPtr[i] = up->childPtr[up->numChildren-1];
+        up->childPtr[up->numChildren-1] = temp;
+      }
+    }
+    for(int i = 0; i < numKeys; i++){
+      if(up->keys[i].compare(up->keys[up->numKeys-1])){
+        string temp = up->keys[i];
+        up->keys[i] = up->keys[up->numKeys-1];
+        up->keys[up->numKeys-1] = temp;
       }
     }
   }
@@ -166,17 +179,17 @@ void BTree::splitParent(BTreeNode *parent, int childNode){
 //should use a better sort if scaling
 //bubble sort?
 void BTree::sort(BTreeNode::Person *leaves, int numLeaves){
-	
-	BTreeNode::Person tmp;
-	for(int i = 0; i < numLeaves; i++){
-		for(int j = i; j < numLeaves; j++){
-			if(leaves[i].name.compare(leaves[j].name) > 0){
-				tmp = leaves[i];
-				leaves[i] = leaves[j];
-				leaves[j] = tmp;
-			}
-		}
-	}
+    
+    BTreeNode::Person tmp;
+    for(int i = 0; i < numLeaves; i++){
+        for(int j = i; j < numLeaves; j++){
+            if(leaves[i].name.compare(leaves[j].name) > 0){
+                tmp = leaves[i];
+                leaves[i] = leaves[j];
+                leaves[j] = tmp;
+            }
+        }
+    }
 }
 
 
@@ -219,9 +232,3 @@ void BTree::insert(std::string a, int dataPtr){
 
 void insertNode(BTreeNode* n);
 void split(BTreeNode *n);
-
-
-
-
-
-
