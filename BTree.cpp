@@ -109,7 +109,7 @@ void BTree::splitLeaf(BTreeNode *leaf, BTreeNode::Person* p){
       leaf->leaves[1] = *p;
     }
   }
-  leaf->leaves[2] = *(new Person());
+  leaf->leaves[2] = *(new BTreeNode::Person());
   leaf->numLeaves = 2;
   splitted->numLeaves = 2;
   if(up->numChildren<5){
@@ -117,14 +117,14 @@ void BTree::splitLeaf(BTreeNode *leaf, BTreeNode::Person* p){
     up->numChildren++;
     up->keys[up->numKeys]= splitted->leaves[0].name;
     up->numKeys++;
-    for(int i = 0; i < numChildren; i++){
-      if(up->childPtr[i]->leaves[0].name.compare(up->childPtr[numChildren-1]->leaves[0].name)){
+    for(int i = 0; i < up->numChildren; i++){
+      if(up->childPtr[i]->leaves[0].name.compare(up->childPtr[up->numChildren-1]->leaves[0].name)){
         BTreeNode* temp = up->childPtr[i];
         up->childPtr[i] = up->childPtr[up->numChildren-1];
         up->childPtr[up->numChildren-1] = temp;
       }
     }
-    for(int i = 0; i < numKeys; i++){
+    for(int i = 0; i < up->numKeys; i++){
       if(up->keys[i].compare(up->keys[up->numKeys-1])){
         string temp = up->keys[i];
         up->keys[i] = up->keys[up->numKeys-1];
