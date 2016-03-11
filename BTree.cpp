@@ -2,6 +2,7 @@
 #include "BTreeNode.h"
 #include <iostream>
 #include <string>
+#include <cmath>
 
 using namespace std;
 
@@ -13,7 +14,7 @@ BTree::BTree(){
    //nullptr evaluates to false in boolean operations
 }
 
-
+/*
 BTree::Person BTree::find(BTreeNode* n, string a){
     if(n==NULL){
         return NULL;
@@ -41,7 +42,8 @@ BTree::Person BTree::find(BTreeNode* n, string a){
         return NULL;
     }
 }
-
+*/
+/*
 int split(BTreeNode* n, int i){
     int center = 0;
     BTreeNode* first, third, y = NULL;
@@ -60,33 +62,23 @@ int split(BTreeNode* n, int i){
         third->numChildren++;
         n->leaves[2] = *(new BTreeNode::Person());
         n->numChildren--;
-        for(int i = 0; i<5; i++){
-            n->childPtr[i] = NULL;
-        }
-        first->leaves[0] = center;
-        first->childPtr[first->numLeaves] = n;
-        first->childPtr[first->numLeaves+1] = third;
-        first->numChildren++;
-        root = first;
+    for(int i = 0; i<5; i++){
+        n->childPtr[i] = NULL;
     }
-    else{
-        y = n->childPtr[i];
-        center = y->leaves[1];
-        y->leaves[1] = 0;
-        y->numChildren--;
-        third->leaves[0] = y->leaves[2];
-        third->numChildren++;
-        y->leaves[2]= 0;
-        y->numChildren++;
-        n->childPtr[i+1] = y;
-        n->childPtr[i+1] = third;
-    }
-    return center;
+    first->leaves[0] = center;
+    first->childPtr[first->numLeaves] = n;
+    first->childPtr[first->numLeaves+1] = third;
+    first->numChildren++;
+    root = first;
 }
-
+else{
+    
+}
+}*/
 //dataptr is the ptr to the file on disk (dataptr*53)
+
 void BTree::insert(std::string a, int dataPtr){
-     //initialize new person
+    //initialize new person
     BTreeNode::Person *p = new BTreeNode::Person();
     p->name = a;
     p->dataPtr = dataPtr;
@@ -119,19 +111,6 @@ void BTree::insert(std::string a, int dataPtr){
 	  	}
 	}
    insertLeaf(n, p);
-}
-
-
-void BTree::insertLeaf(BTreeNode *n, BTreeNode::Person *p, int leafIndex){
-
-	if(n->numLeaves == this->maxLeaves){
-		splitLeaf(n, p, leafIndex);
-	}
-	else{
-	    n->leaves[n->numLeaves] = *p;
-	    ++(n->numLeaves);
-	    sort(n->leaves, n->numLeaves);
-	}
 }
 
 void BTree::splitRoot(BTreeNode* r, BTreeNode::Person* p){
@@ -183,21 +162,39 @@ void BTree::splitRoot(BTreeNode* r, BTreeNode::Person* p){
    // print();
 }
 
+void BTree::splitLeaf(BTreeNode *n, BTreeNode::Person *p, int leafIndex){
+
+}
+
+void BTree::insertLeaf(BTreeNode *n, BTreeNode::Person *p, int leafIndex){
+
+	if(n->numLeaves == this->maxLeaves){
+		splitLeaf(n, p, leafIndex);
+	}
+	else{
+	    n->leaves[n->numLeaves] = *p;
+	    ++(n->numLeaves);
+	    sort(n->leaves, n->numLeaves);
+	}
+}
+
+
 //no need for nlogn sort. Sorting 3 or less items
 //should use a better sort if scaling
 //bubble sort?
-void BTree::sort(Person *leaves, int numLeaves){
-	
-	Person tmp;
-	for(int i = 0; i < numLeaves; i++){
-		for(int j = i; j < numLeaves; i++){
-			if(leaves[i].name.compare(leaves[j].name) > 0){
-				tmp = leaves[i];
-				leaves[i] = leaves[j];
-				leaves[j] = tmp;
-			}
-		}
-	}
+void BTree::sort(BTreeNode::Person *leaves, int numLeaves){
+  
+  BTreeNode::Person tmp;
+  for(int i = 0; i < numLeaves; i++){
+    for(int j = i; j < numLeaves; j++){
+      if(leaves[i].name.compare(leaves[j].name) > 0){
+        tmp = leaves[i];
+        leaves[i] = leaves[j];
+        leaves[j] = tmp;
+      }
+    }
+  }
+
 }
 
 
@@ -206,21 +203,63 @@ void BTree::print(){
 }
 
 void BTree::print(BTreeNode *n){
-	//BTreeNode *n = root;
-	if(n == nullptr){
-		return;
-	}
-	if(n->leaf == false){
-		for(int i = 0; i < n->numChildren; i++){
-			print(n->childPtr[i]);
-		}
-	}
-	if(n->leaf == true){
-		for(int i =0; i < n->numLeaves; i++){
-			cout << n->leaves[i].name << " and dataptr " << n->leaves[i].dataPtr << endl;
- 		}
-	}
+  //BTreeNode *n = root;
+  if(n == nullptr){
+    return;
+  }
+  if(n->leaf == false){
+    for(int i = 0; i < n->numChildren; i++){
+      print(n->childPtr[i]);
+    }
+  }
+  if(n->leaf == true){
+    cout << n->numLeaves << endl;
+    for(int i =0; i < n->numLeaves; i++){
+      cout << n->leaves[i].name << " and dataptr " << n->leaves[i].dataPtr << endl;
+    }
+  }
 }
+
+
+/*
+BTreeNode* BTree::splitNode(BTreeNode *parent, int indexToSplit){
+  
+  if(parent->leaf == true){
+    cout << "should not have a leaf as an argument" << endl;
+    return nullptr;
+  }
+
+  BTreeNode *n = parent->childPtr[indexToSplit];
+  
+  //set up the tmp node
+  BTreeNode *tmp = new BTreeNode();
+    tmp->numChildren = ceil((n->numChildren)/2);
+    tmp->numKeys = n->numKeys/2;
+    
+    //for(int i = ceil(parent->numchildren/2); i<parent->numChildren; i++)
+    int tmpChildCounter = 0;
+
+    tmp->childPtr[0] = n->childPtr[2];
+    ++tmpChildCounter;
+
+    for(int i = 3; i < n->numChildren; i++){
+       
+        tmp->childPtr[tmpChildCounter] = n->childPtr[i];
+        tmp->keys[tmpChildCounter-1] = n->keys[i-1];
+
+        n->keys[i-1] = "?";
+        n->childPtr[i] = nullptr;
+      
+        ++tmpChildCounter;
+        --(n->numChildren);
+
+        --(n->numKeys);
+  }
+  parent->childPtr[indexToSplit+1] = tmp;
+  parent->keys[indexToSplit+1] = tmp->keys[0];
+  return tmp;
+}
+*/
 
 
 

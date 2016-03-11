@@ -5,7 +5,7 @@ BINARIES=prog3
 test:${BINARIES}
 	./prog3
 	
-prog3: BTreeNode.o BTree.o AdList.o Main.o 
+prog3: BTreeNode.o BTree.o Main.o 
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
 	

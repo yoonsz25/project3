@@ -17,20 +17,23 @@ class BTree{
         //May need helper functions
     
        void insert(std::string a, int dataPtr); // a = name. dataptr = disk pointer. Both make up person
-       void insertNonFull(BTreeNode *n, Person *p);
-       int split(BTreeNode* n, int i);
+       //void insertNonFull(BTreeNode *n, Person *p);
+     //  int split(BTreeNode* n, int i);
+
        //void splitParent(BTreeNode *parent, int childNode);
        //void splitLeaf(BTreeNode *leaf, Person* p);
-     //  BTreeNode* splitRoot();
-//
-       void insertLeaf(BTreeNode *n, BTreeNode::Person *p, int leafIndex = -1);
-       void splitLeaf(BTreeNode *n, BTreeNode::Person *p, int leafIndex);
-       void sort(Person *leaves, int numLeaves);
+       void splitRoot(BTreeNode *leaf, BTreeNode::Person* p);
+
+      void insertLeaf(BTreeNode *n, BTreeNode::Person *p, int leafIndex = -1);
+      void splitLeaf(BTreeNode *n, BTreeNode::Person *p, int leafIndex);
+
+       //void insertLeaf(BTreeNode *n, Person *p);
+       void sort(BTreeNode::Person *leaves, int numLeaves);
        
        void print();
        void print(BTreeNode* n);
         
-       Person find(BTreeNode n, std::string a);
+    //   BTreeNode::Person find(BTreeNode n, std::string a);
        std::string retrieveData(std::string a);
        void RangeQuery(std::string firstPerson, std::string lastPerson);
        
