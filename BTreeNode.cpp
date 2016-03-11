@@ -10,7 +10,7 @@ BTreeNode::BTreeNode(){
     leaves = new Person[3];
     for(int i = 0; i < maxLeaves; i++){
         Person *p = new Person;
-        leaves[i] = p;
+        leaves[i] = *p;
     }
     parent = nullptr;
     next = nullptr;
