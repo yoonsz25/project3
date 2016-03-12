@@ -12,14 +12,7 @@ BTreeNode::BTreeNode(){
         this->keys[i] = "?";
 
     leaves = new Person[3];
-<<<<<<< HEAD
-    for(int i = 0; i < maxLeaves; i++){
-        Person *p = new Person;
-        leaves[i] = *p;
-    }
-=======
 
->>>>>>> 681a43f453827f3e01110aa97588b748dc3607d8
     parent = nullptr;
     next = nullptr;
     leaf = false;

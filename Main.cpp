@@ -14,9 +14,10 @@ int main()
 	b.insert("bob", 2);
 	b.insert("alex", 3);
 	b.insert("yoon", 1);
+	b.print();
 	b.insert("john", 8);
 	b.insert("jane", 5);
 	b.insert("sara", 7);
-
+	b.print();
 	return 0;
 }
