@@ -3,23 +3,26 @@
 #include <iostream>
 #include <string>
 #include <cmath>
+#include <cassert>
 
 using namespace std;
+
+
+ //nullptr evaluates to false in boolean operations
 
 BTree::BTree(){
     root = new BTreeNode();
     this->maxChild = 5;         //min 3, max 5
     this->maxLeaves = 3;        //min 2, max 3
     root->leaf = true;
-   //nullptr evaluates to false in boolean operations
 }
 
 /*
-BTree::Person BTree::find(BTreeNode* n, string a){
+BTreeNode::Person BTree::find(BTreeNode* n, string a){
     if(n==NULL){
         return NULL;
     }
-    if(!n->leaf){
+    if(n->leaf == false){
         int location = a.compare(n->keys[0]);
         int nextOne =0;
         if(location<0){
@@ -34,7 +37,7 @@ BTree::Person BTree::find(BTreeNode* n, string a){
         }
         return find(n->childPtr[numChildren-1], a);
     }
-    if(n->leaf){
+    if(n->leaf == true){
         for(int i = 0; i<n->numLeaves; i++){
             if(a.compare(n->leaves[i].name)==0)
                 return n->leaves[i];
@@ -44,102 +47,69 @@ BTree::Person BTree::find(BTreeNode* n, string a){
 }
 */
 
-void BTree::split(BTreeNode* n, BTreeNode::Person* p, int i){
-    if(n->numChildren == 5){
-        if(n->parent!=NULL && n->parent->numChildren == 5){
-            for(int j = 0; j < 5; j++){
-                if(n->parent->childPtr[j] == n){
-                    split(n,p,j);
-                    break;
-                }
+void BTree::split(BTreeNode* n, BTreeNode::Person* p, int index){
+    assert(n->numChildren == 5);
+    if(n->parent!=NULL && n->parent->numChildren == 5){
+        for(int j = 0; j < 5; j++){
+            if(n->parent->childPtr[j] == n){
+                //call split(n->parent, "string new key that should be inserted", int index);
+                break;
             }
-            
         }
     }
-    if(n->childPtr[i]->numLeaves == 3 && n->numKeys < 5){
-        BTreeNode::Person middle = n->childPtr[i]->leaves[2];
-        BTreeNode* newOne = new BTreeNode();
-        newOne->leaf = true;
-        if(middle.name.compare(p->name)<0){
-            newOne->leaves[0] = *p;
-            newOne->leaves[1] = n->childPtr[i]->leaves[2];
-            n->childPtr[i]->leaves[2] = BTreeNode::Person();
-        }
-        else{
-            newOne->leaves[0] = n->childPtr[i]->leaves[1];
-            newOne->leaves[1] = n->childPtr[i]->leaves[2];
-            n->childPtr[i]->leaves[1] = *p;
-            n->childPtr[i]->leaves[2] = BTreeNode::Person();
-        }
-        newOne->numLeaves = 2;
-        newOne->parent = n;
-        newOne->next = n->childPtr[i]->next;
-        n->childPtr[i]->next = newOne;
-        sort(newOne->leaves, newOne->numLeaves);
+    BTreeNode* newOne = new BTreeNode();
+    for(int i = 0; i < 3; i++){
+        newOne->childPtr[i] = n->childPtr[i+2];
+        if(i<2)
+            newOne->keys[i] = n->keys[i+2];
+    }
+    newOne->numChildren = 3;
+    newOne->numKeys = 2;
+    newOne->parent = n->parent;
+    //alex's code
+    for(int i = n->parent->numChildren; i>index; i--){
+		n->parent->childPtr[i+1] = n->parent->childPtr[i];
+	}
+	++(n->parent->numChildren);
+	n->parent->childPtr[i+1] = newOne;
+	//update keys
+	for(int i = n->numKeys; i>index; i--){
+		n->parent->keys[i+1] = n->parent->keys[i];
+	}
+	n->parent->keys[index] = newOne->leaves[1].name;
+	++(n->parent->numKeys);
+	for(int i = 0; i <numKeys; i++)
+	    n->parent->keys[i] = n->parent->childPtr[i+1]->childPtr[0]->leaves[0].name;
+	
+    for(int i = 2; i < 4; i++){
+        n->keys[i] = "?";
+        n->childPtr[i+1] = NULL;
+    }
+    n->numChildren = 3;
+    n->numKeys = 2;
+    
+    if(n->childPtr[2]->leaves[1].compare(p.name)>0 && index != 2){
+        //* n = leaf(node) which is being split
+        //p = person to insert
+        // leafIndex = index into leaf from parent
+        n->childPtr[2] = NULL;
+        n->numChildren--;
+        n->keys[1] = "?";
+        n->numKeys--;
+        splitLeaf(n->childPtr[index], p, index);
+    }
+    else if(index!=2 && n->childPtr[2]->leaves[1].compare(p.name)<0){
+        newOne>childPtr[0] = NULL;
+        newOne->numChildren--;
+        newOne->keys[1] = "?";
+        newOne->numKeys--;
+        splitLeaf(newOne->childPtr[index-2],p,index-2);
+    }
+    if(index==2){
         
-        //update parent now.
-        n->childPtr[i+1] = newOne;
-        int counter = i+1;
-        for(BTreeNode* nodei = newOne->next; nodei != NULL; nodei= nodei->next){
-            n->childPtr[counter++] = nodei;
-        }
-        n->keys[n->numKeys] = newOne->leaves[0].name;
-        for(int i = 0; i < n->numKeys+1; i++){
-            if(n->keys[i].compare(n->keys[n->numKeys])>0){
-                string temp = n->keys[n->numKeys];
-                n->keys[n->numKeys] = n->keys[i];
-                n->keys[i] = temp;
-            }
-        }
-        n->numChildren++;
-        n->numKeys++;
     }
 }
-    /*
-    int center = 0;
-    BTreeNode* first, third, y = NULL;
-    third = new BTreeNode();
-    third->leaf = true;
-    if(i<0){
-        center = n->leaves[1];
-        n->leaves[1] = *(new BTreeNode::Person());
-        n->numLeaves--;
-        first = new BTreeNode();
-        first->leaf = false;
-        n->leaf = true;
-        third->leaves[0] = n->leaves[2];
-        third->childPtr[0] = n->childPtr[2];
-        third->numLeaves++;
-        third->numChildren++;
-        n->leaves[2] = *(new BTreeNode::Person());
-        n->numChildren--;
-        for(int i = 0; i<5; i++){
-            n->childPtr[i] = NULL;
-        }
-        first->leaves[0] = center;
-        first->childPtr[first->numLeaves] = n;
-        first->childPtr[first->numLeaves+1] = third;
-        first->numChildren++;
-        root = first;
-    }
-    else{
-        y = n->childPtr[i];
-        center = y->leaves[1];
-        y->leaves[1] = 0;
-        y->numChildren--;
-        third->leaves[0] = y->leaves[2];
-        third->numChildren++;
-        y->leaves[2]= 0;
-        y->numChildren++;
-        n->childPtr[i+1] = y;
-        n->childPtr[i+1] = third;
-    }
-    return center;
-    */
-    
-
 //dataptr is the ptr to the file on disk (dataptr*53)
-
 void BTree::insert(std::string a, int dataPtr){
     //initialize new person
     BTreeNode::Person *p = new BTreeNode::Person();
@@ -230,8 +200,10 @@ void BTree::splitRoot(BTreeNode* r, BTreeNode::Person* p){
    // print();
 }
 
-//n is the leaf node which is full. Leaf index is the index of n in relation
-//to its parent
+/* n = leaf(node) which is being split
+*  p = person to insert
+*  leafIndex = index into leaf from parent
+*/
 void BTree::splitLeaf(BTreeNode *n, BTreeNode::Person *p, int leafIndex){
 	assert(n->numLeaves == this->maxLeaves);
 	cout << n->parent->keys[0]<< "\n"<<endl;
@@ -274,10 +246,11 @@ void BTree::splitLeaf(BTreeNode *n, BTreeNode::Person *p, int leafIndex){
 	n->parent->keys[leafIndex] = upperHalf->leaves[1].name;
 	++(n->parent->numKeys);
 
-
 }
+
 void BTree::insertLeaf(BTreeNode *n, BTreeNode::Person *p, int leafIndex){
 	if(n->numLeaves == this->maxLeaves){
+	    //trying split function, if it doesn't work do splitLeaf
 		splitLeaf(n, p, leafIndex);
 	}
 	else{
@@ -328,47 +301,3 @@ void BTree::print(BTreeNode *n){
     }
   }
 }
-
-
-/*
-BTreeNode* BTree::splitNode(BTreeNode *parent, int indexToSplit){
-  
-  if(parent->leaf == true){
-    cout << "should not have a leaf as an argument" << endl;
-    return nullptr;
-  }
-
-  BTreeNode *n = parent->childPtr[indexToSplit];
-  
-  //set up the tmp node
-  BTreeNode *tmp = new BTreeNode();
-    tmp->numChildren = ceil((n->numChildren)/2);
-    tmp->numKeys = n->numKeys/2;
-    
-    //for(int i = ceil(parent->numchildren/2); i<parent->numChildren; i++)
-    int tmpChildCounter = 0;
-
-    tmp->childPtr[0] = n->childPtr[2];
-    ++tmpChildCounter;
-
-    for(int i = 3; i < n->numChildren; i++){
-       
-        tmp->childPtr[tmpChildCounter] = n->childPtr[i];
-        tmp->keys[tmpChildCounter-1] = n->keys[i-1];
-
-        n->keys[i-1] = "?";
-        n->childPtr[i] = nullptr;
-      
-        ++tmpChildCounter;
-        --(n->numChildren);
-
-        --(n->numKeys);
-  }
-  parent->childPtr[indexToSplit+1] = tmp;
-  parent->keys[indexToSplit+1] = tmp->keys[0];
-  return tmp;
-}
-*/
-
-
-

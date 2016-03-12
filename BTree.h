@@ -16,15 +16,15 @@ class BTree{
         //come back and update return types of function. 
         //May need helper functions
     
-       void insert(std::string a, int dataPtr); // a = name. dataptr = disk pointer. Both make up person
+      void insert(std::string a, int dataPtr); // a = name. dataptr = disk pointer. Both make up person
        
-       void split(BTreeNode* n, BTreeNode::Person* p, int i);
+      void split(BTreeNode* n, BTreeNode::Person* p, int i);
 
       void splitRoot(BTreeNode *leaf, BTreeNode::Person* p);
       void insertLeaf(BTreeNode *n, BTreeNode::Person *p, int leafIndex = -1);
       void splitLeaf(BTreeNode *n, BTreeNode::Person *p, int leafIndex);
 
-       //void insertLeaf(BTreeNode *n, Person *p);
+       
        void sort(BTreeNode::Person *leaves, int numLeaves);
        
        void print();
