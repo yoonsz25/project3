@@ -9,15 +9,27 @@ using namespace std;
 
 int main()
 {
-	BTree b;
+BTree b;
 	//BTreeNode b;
-	b.insert("bob", 2);
+	b.insert("zack", 2);
 	b.insert("alex", 3);
-	b.insert("yoon", 1);
-	b.print();
+	b.insert("tom", 1);
+	//b.print();
 	b.insert("john", 8);
-	b.insert("jane", 5);
+	//b.print();
+	b.insert("mat", 5);
 	b.insert("sara", 7);
+    b.print();
+    b.insert("jack", 5);
+	b.insert("mack", 7);
+	cout <<"\n\n" ;
 	b.print();
+	b.insert("erin", 5);
+	b.insert("derek", 7);
+	b.insert("bob", 13);
+	b.insert("carly", 20);
+	cout <<"\n\n" ;
+	b.print();
+
 	return 0;
 }
