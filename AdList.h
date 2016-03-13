@@ -32,6 +32,7 @@ class AdList{
 		void print();
 		
 		HashEntry get(int i);
+		int getSize();
 
 };
 

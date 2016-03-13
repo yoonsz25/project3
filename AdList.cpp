@@ -127,3 +127,7 @@ AdList::HashEntry AdList::get(int i){
     }
     return this->arr[i];
 }
+
+int AdList::getSize(){
+    return this->TABLE_SIZE;
+}
