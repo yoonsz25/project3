@@ -21,3 +21,32 @@ BTreeNode::BTreeNode(){
     numKeys = 0;
 }
 
+BTreeNode::BTreeNode(const BTreeNode &n){
+    childPtr = new BTreeNode*[6];
+    for(int i = 0; i <5; i++){
+        this->childPtr[i] = n.childPtr[i];
+    }
+    this->childPtr[6] = nullptr;
+    keys = new std::string[5];
+    for(int i =0; i<4; i++){
+        this->keys[i] = n.keys[i];
+    }
+    this->keys[4] = "?";
+    leaves = new Person[3];
+    this->parent = n.parent;
+    this->next = n.next;
+    this->leaf = n.leaf;
+    this->numChildren = n.numChildren;
+    this->numLeaves = n.numLeaves;
+    this->numKeys=n.numKeys;
+}
+
+BTreeNode::~BTreeNode(){
+    for(int i = 0; i < this->numChildren; i++){
+        this->childPtr[i] = nullptr;
+    }
+    this->parent = nullptr;
+    delete[] childPtr;
+    delete[] keys;
+    delete[] leaves;
+}

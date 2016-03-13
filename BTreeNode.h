@@ -34,6 +34,7 @@ class BTreeNode{
         public:
             
             BTreeNode();
+            BTreeNode(const BTreeNode &n);
             
 };
 

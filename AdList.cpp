@@ -35,7 +35,6 @@ void AdList::insertHash(string name){
     }
     arr[index].name = name;
     arr[index].dataPointer = count;
-    cout << "index is: " << index << ", pointer to data is: " << arr[index].dataPointer << ", count is: " << this->count << endl;
 }
 
 /*

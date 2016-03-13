@@ -34,17 +34,68 @@ BTree::BTree(){
     root->leaf = true;
 }
 void BTree::split(BTreeNode* n, BTreeNode::Person* p, int index){
+    //base case = parent is null
+    if(n == nullptr){
+        //code
+        BTreeNode* origin = new BTreeNode();
+        origin->childPtr[0] = root;
+        root = origin;
+        origin = origin->childPtr[0];
+        origin->parent = root;
+
+        root->childPtr[1] = new BTreeNode();
+        BTreeNode* newOne = root->childPtr[1];
+        newOne->parent = root;
+        for(int i = 0; i<3; i++){
+            newOne->childPtr[i] = origin->childPtr[i+3];
+            if(i<2)
+                newOne->keys[i] = origin->keys[i+3];
+        }
+        root->numChildren = 2;
+        root->numKeys = 1;
+        
+        //update origin
+        BTreeNode* replacement = new BTreeNode();
+        for(int i = 0; i <3; i++){
+            replacement->childPtr[i] = origin->childPtr[i];
+        }
+        for(int i =0; i<2; i++){
+            replacement->keys[i] = origin->keys[i];
+        }
+        replacement->parent = root;
+        replacement->numChildren = 3;
+        replacement->numKeys = 2;
+        root->childPtr[0] = replacement;
+        return;
+    }
+    //base case = parent has room to take in.
+    if(n->numChildren<5){
+        //code
+        return;
+    }
     assert(n->numChildren == 5);
-    //split the parent.
-    if(n->parent!=NULL && n->parent->numChildren == 5){
+    BTreeNode* copy = new BTreeNode(*n);
+    if(copy->childPtr[index]->leaf){
+        splitLeaf(copy->childPtr[index], p, index);
+    }
+    if(copy->parent == NULL || copy->parent->numChildren == 5){
         for(int j = 0; j < 5; j++){
             if(n->parent->childPtr[j] == n){
-                //call split(n->parent, "string new key that should be inserted", int index); overload
+                split(n->parent, p, j); 
                 break;
             }
         }
     }
+    /*
     
+    
+    
+    
+    
+    
+    
+    
+    */
     //create the newOne that'll be the new leaf
     BTreeNode* newOne = new BTreeNode();
     for(int i = 0; i < 3; i++){
@@ -58,14 +109,21 @@ void BTree::split(BTreeNode* n, BTreeNode::Person* p, int index){
     
     //update the parent
     if(n->parent != NULL){
-        for(int i = n->parent->numChildren; i>index; i--){
-    		n->parent->childPtr[i+1] = n->parent->childPtr[i];
+        BTreeNode* par = n->parent;
+        for(int i = 0; i<par->numChildren;i++){
+            if(par->childPtr[i] == n){
+                index = i;
+                break;
+            }
         }
-    	++(n->parent->numChildren);
-    	n->parent->childPtr[index+1] = newOne;
+        for(int i = par->numChildren; i>index; i--){
+    		par->childPtr[i+1] = par->childPtr[i];
+        }
+    	++(par->numChildren);
+    	par->childPtr[index+1] = newOne;
     	//update keys
 	    for(int i = n->numKeys; i>index; i--){
-	    	n->parent->keys[i+1] = n->parent->keys[i];
+	    	par->keys[i+1] = par->keys[i];
 	    }
 	    n->parent->keys[index] = newOne->leaves[1].name;
 	    ++(n->parent->numKeys);
@@ -89,7 +147,7 @@ void BTree::split(BTreeNode* n, BTreeNode::Person* p, int index){
     }
     n->numChildren = 3;
     n->numKeys = 2;
-    if(n->keys[1].compare(p->name)>0){
+    if(index != 2 && n->keys[1].compare(p->name)>0){
         //* n = leaf(node) which is being split
         //p = person to insert
         // leafIndex = index into leaf from parent
@@ -99,29 +157,26 @@ void BTree::split(BTreeNode* n, BTreeNode::Person* p, int index){
         n->numKeys--;
         splitLeaf(n->childPtr[index], p, index);
     }
-    else if(n->keys[2].compare(p->name)<0){
+    else if(index != 2 && n->keys[2].compare(p->name)<0){
         for(int i = 0; i < 2; i++){
             newOne->childPtr[i] = newOne->childPtr[i+1];
+            newOne->childPtr[i]->parent = newOne;
         }
         newOne->numChildren--;
         newOne->childPtr[2] = nullptr;
         newOne->numKeys--;
         newOne->keys[1]="?";
-        for(int i = 0; i<newOne->numKeys;i++){
-            newOne->keys[i]=newOne->childPtr[i+1]->leaves[0].name;
-        }
-        printInternalNode(newOne);
-        cout << newOne->childPtr[index-2]->numLeaves << endl;
-        splitLeaf(newOne->childPtr[index-2],p,index-2);
+        splitLeaf(newOne->childPtr[index-3],p,index-3);
     }
     else if(index==2){
-        cout << "this is called";
         splitLeaf(n->childPtr[2],p,2);
         newOne->childPtr[0] = n->childPtr[2]->next;
+        newOne->childPtr[0]->next = newOne->childPtr[1];
         n->keys[2] = "?";
         n->numKeys--;
         n->childPtr[3] = NULL;
         n->numChildren--;
+        
     }
     //connects last leaf node to the first leaf node of newOne
     n->childPtr[2]->next = newOne->childPtr[0];
@@ -129,21 +184,6 @@ void BTree::split(BTreeNode* n, BTreeNode::Person* p, int index){
         root->keys[0] = newOne->childPtr[0]->leaves[0].name;
         root->numKeys = 1;
     }
-    cout<< "first internal node: " << endl;
-    printInternalNode(n);
-    cout<<"Second internal node: " << endl;
-    printInternalNode(newOne);
-    cout << "New Root: " << endl;
-    printInternalNode(root);
-    cout << "\n\n\n" << "TESTING:    " << endl;
-    for(BTreeNode* axis = n->childPtr[0]; axis != NULL; axis = axis->next){
-        cout << "new Node: ";
-        for(int i = 0; i < axis->numLeaves; i++){
-            cout << axis->leaves[i].name << ", ";
-        }
-        cout << "\n";
-    }
-    cout << "\n";
 }
 //dataptr is the ptr to the file on disk (dataptr*53)
 void BTree::insert(std::string a, int dataPtr){
@@ -172,7 +212,7 @@ void BTree::insert(std::string a, int dataPtr){
 	       		break;  
 	          }
 	          if(a.compare(n->keys[n->numKeys-1]) > 0){
-	            i = n->numKeys-1;
+	            i = n->numChildren-1;
 	            break;
 	          }
 	      }
@@ -182,6 +222,12 @@ void BTree::insert(std::string a, int dataPtr){
 	}
    insertLeaf(n, p, indexToLeaf);
 }
+
+//
+void BTree::split(BTreeNode* n, string key, int index){
+    
+}
+
 
 void BTree::splitRoot(BTreeNode* r, BTreeNode::Person* p){
     BTreeNode* tmp = new BTreeNode();
@@ -205,7 +251,6 @@ void BTree::splitRoot(BTreeNode* r, BTreeNode::Person* p){
     //p comes before mid
     assert(p->name.compare(mid.name) != 0);
     if(p->name.compare(mid.name) < 0){
-    	cout << "1 entered\n" << endl;
         for(int i = 0; i <= midLeaf; i++){
             tmp->childPtr[0]->leaves[i] = r->leaves[i];
             tmp->childPtr[1]->leaves[i] = r->leaves[i+midLeaf];
@@ -216,7 +261,6 @@ void BTree::splitRoot(BTreeNode* r, BTreeNode::Person* p){
     }
     //p is after mid
     else{
-    	cout << "else entered" << endl;
         for(int i = 0; i <= midLeaf; i++){
             tmp->childPtr[0]->leaves[i] = r->leaves[i];
             tmp->childPtr[1]->leaves[i] = r->leaves[i+midLeaf];
@@ -285,9 +329,6 @@ void BTree::splitLeaf(BTreeNode *n, BTreeNode::Person *p, int leafIndex){
 	}
 	n->parent->childPtr[(n->parent->numChildren)-1]->next = nullptr;
 	
-	cout <<"check end --\n";
-	    printInternalNode(n->parent);
-	    cout <<"\n";
 }
 
 void BTree::insertLeaf(BTreeNode *n, BTreeNode::Person *p, int leafIndex){
@@ -335,7 +376,7 @@ void BTree::print(BTreeNode *n){
     }
   }
   if(n->leaf == true){
-      //cout << "number of leaves in this node " << n->numLeaves<< endl;
+     //cout << "number of leaves in this node " << n->numLeaves<< endl;
     for(int i =0; i < n->numLeaves; i++){
       cout << n->leaves[i].name << " and dataptr " << n->leaves[i].dataPtr << endl;
     }
@@ -357,8 +398,12 @@ void BTree::listPrint(){
 	}
 	assert(tmp->leaf == true);
 	while(tmp != nullptr){
+	    cout << "\nNew Node with size " << tmp->numLeaves << ": \n";
 		for(int i = 0; i < tmp->numLeaves; i++){
       		cout << tmp->leaves[i].name << " and dataptr " << tmp->leaves[i].dataPtr << endl;
+		}
+		if(tmp->next != NULL && tmp->parent != tmp->next->parent){
+		    cout << "next internal node is used.";
 		}
 		tmp = tmp->next;
 	}
