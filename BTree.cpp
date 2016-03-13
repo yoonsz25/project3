@@ -102,16 +102,20 @@ void BTree::split(BTreeNode* n, BTreeNode::Person* p, int index){
     else if(n->keys[2].compare(p->name)<0){
         for(int i = 0; i < 2; i++){
             newOne->childPtr[i] = newOne->childPtr[i+1];
-            if(i==0)
-                newOne->keys[i] = newOne->keys[i+1];
         }
-        newOne->childPtr[2] = NULL;
         newOne->numChildren--;
-        newOne->keys[1] = "?";
+        newOne->childPtr[2] = nullptr;
         newOne->numKeys--;
+        newOne->keys[1]="?";
+        for(int i = 0; i<newOne->numKeys;i++){
+            newOne->keys[i]=newOne->childPtr[i+1]->leaves[0].name;
+        }
+        printInternalNode(newOne);
+        cout << newOne->childPtr[index-2]->numLeaves << endl;
         splitLeaf(newOne->childPtr[index-2],p,index-2);
     }
     else if(index==2){
+        cout << "this is called";
         splitLeaf(n->childPtr[2],p,2);
         newOne->childPtr[0] = n->childPtr[2]->next;
         n->keys[2] = "?";
@@ -129,10 +133,8 @@ void BTree::split(BTreeNode* n, BTreeNode::Person* p, int index){
     printInternalNode(n);
     cout<<"Second internal node: " << endl;
     printInternalNode(newOne);
-    
     cout << "New Root: " << endl;
     printInternalNode(root);
-    
     cout << "\n\n\n" << "TESTING:    " << endl;
     for(BTreeNode* axis = n->childPtr[0]; axis != NULL; axis = axis->next){
         cout << "new Node: ";

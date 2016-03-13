@@ -111,23 +111,24 @@ void AdList::updateFriend(string a, string b){
 
 void AdList::print(){
     for(int i =0; i < TABLE_SIZE; i++){
-        cout << "Index " << i << ": " << arr[i].name << 
-            "\nFriends: ";
-        list<string> s = arr[i].friends;
-        for(list<string>::const_iterator it = s.begin(); it != s.end(); ++it){
-            cout << " " << *it;
+        if(arr[i].name.compare("!") != 0){
+            cout << "Index " << i << ": " << arr[i].name << 
+                "\nFriends: ";
+            list<string> s = arr[i].friends;
+            for(list<string>::const_iterator it = s.begin(); it != s.end(); ++it){
+                cout << " " << *it;
+            }
+            cout << "\n";
         }
-        cout << "\n";
     }
 }
 
-AdList::HashEntry AdList::get(int i){
+HashEntry AdList::get(int i){
     if(i > this->TABLE_SIZE){
         cerr << "index out of bounds" << endl;
     }
     return this->arr[i];
 }
-
 int AdList::getSize(){
     return this->TABLE_SIZE;
 }

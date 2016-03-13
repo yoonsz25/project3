@@ -5,15 +5,11 @@
 #include <list>
 #include <vector>
 #include <stdio.h>
-
+#include "HashEntry.h"
 
 class AdList{
 	private:
-		struct HashEntry{
-			std::string name;
-			int dataPointer;
-			std::list<std::string> friends;
-		};
+		
 		HashEntry *arr;
 		int count;
 		int TABLE_SIZE;
@@ -33,7 +29,6 @@ class AdList{
 		
 		HashEntry get(int i);
 		int getSize();
-
 };
 
 #endif
