@@ -1,8 +1,12 @@
 #include "AdList.h"
+#include <sstream>
+#include <fstream>
 #include <iostream>
 #include <string>
 #include <vector>
+#include <list>
 #include <stdio.h>
+#include <cassert>
 
 
 using namespace std;
@@ -28,7 +32,8 @@ int AdList::hash(string str, int seed){
 void AdList::insertHash(string name){
     int index = hash(name);
     int i = 1;
-    while(arr[index].name.compare("!")!=0){
+    while(arr[index].name.compare("!") != 0){
+       // cout << arr[index].name.compare(name) << endl;
         index = hash(name,i);
         i++;
     }
@@ -36,6 +41,14 @@ void AdList::insertHash(string name){
     arr[index].dataPointer = count;
 }
 
+int AdList::getHash(string name){
+    int index = hash(name);
+    int i = 0;
+    while(arr[index].name.compare(name)!=0){
+        index = hash(name,i++);
+    }
+    return index;
+}
 /*
     input[0]  == name of person
     input[1]  == age of person
@@ -50,27 +63,23 @@ void AdList::insertData(vector<string> input, FILE *pFile){
         string friendI = input[i];
         addFriend(originator, friendI);
     }
-    ++this->count;
 }
 
 
-/*************************
-            THINK OF BETTER NAMES FOR THESE STRINGS.
- */
+
 void AdList::writeToFile(FILE *pFile, string name, string age, string occupation){
- // FILE *pFile;
     const char *cName = name.c_str();
     const char *cAge = age.c_str();
     const char *cOccupation = occupation.c_str();
     int offset = this->count * 53;
-  // pFile = fopen(profileName, "w");
-    fseek(pFile, offset, SEEK_SET); //find end of file to start appending data
-    fputs(cName, pFile); //write name to disk
-    fseek(pFile, 20, SEEK_CUR); //find spot to place age
-    fputs(cAge, pFile); //write age to disk
-    fseek(pFile, 3, SEEK_CUR); //find spot to write occupation
-    fputs(cOccupation, pFile); //write occupation to disk
-  //fclose(pFile);
+    fseek(pFile, offset, SEEK_SET);     //find offset of file to start appending data
+    fputs(cName, pFile);                //write name to disk
+    fseek(pFile, offset+ 20, SEEK_SET);         //find spot to place age
+    fputs(cAge, pFile);                 //write age to disk
+    fseek(pFile, offset + 23, SEEK_SET);          //find spot to write occupation
+    fputs(cOccupation, pFile);          //write occupation to disk
+    ++this->count;
+
 }
 //returns true if a is a frined of b
 bool AdList::friendship(string a, string b){
@@ -92,12 +101,11 @@ void AdList::addFriend(string name, string nameFriend){
     if(friendship(name, nameFriend)){
         return;
     }
-    int index = hash(name);
-    int i = 0;
-    while(arr[index].name.compare(name)!=0){
-        index = hash(name,i++);
-    }
+    if(nameFriend.compare("") == 0)
+        return;
+    int index = getHash(name);
     arr[index].friends.push_back(nameFriend);
+    
 }
 
 //friend A adds friend B to A's list and B adds A to B's list.
@@ -110,16 +118,70 @@ void AdList::updateFriend(string a, string b){
 void AdList::print(){
     for(int i =0; i < TABLE_SIZE; i++){
         if(arr[i].name.compare("!") != 0){
-            cout << "Index " << i << ": " << arr[i].name << 
-                "\nFriends: ";
+            cout << "Index " << i << ": " << arr[i].name << "\n"; 
+            cout << "Friends:";
             list<string> s = arr[i].friends;
+            cout << arr[i].name<<" "<<s.size()<< endl;
             for(list<string>::const_iterator it = s.begin(); it != s.end(); ++it){
                 cout << " " << *it;
             }
-            cout << "\n";
+            cout << endl;
         }
     }
 }
+
+void AdList::printAll(){
+    for(int i =0; i < TABLE_SIZE; i++){
+        if(arr[i].name.compare("!") != 0){
+            printSingle(arr[i].name);
+            cout << "\n"<< endl;
+        }
+    }
+}
+void AdList::printSingle(string name){
+    int index = getHash(name);
+    int offset = arr[index].dataPointer * 53;
+    char cname[20];
+    char age[3];
+    char occupation[30];
+    FILE *pFile;
+    pFile = fopen("ProfileData.txt", "r");
+    fseek(pFile, offset, SEEK_SET);
+    fgets(cname, 20, pFile);
+    fseek(pFile, (20+offset), SEEK_SET);
+    fgets(age, 3, pFile);
+    fseek(pFile, (23+offset), SEEK_SET);
+    fgets(occupation, 30, pFile);
+    cout << cname << "," << age << "," << occupation;
+    arr[index].printFriends();
+    fclose(pFile);
+}   
+
+void AdList::ListFriendsInfo(string name){
+
+    int index = getHash(name);
+    vector<string> tmp = arr[index].getFriends();
+    for(int i = 0; i < tmp.size(); i++){
+        int friendIndex = getHash(tmp[i]);
+        int offset = arr[friendIndex].dataPointer * 53;
+        char cname[20];
+        char age[3];
+        char occupation[30];
+        FILE *pFile;
+        pFile = fopen("ProfileData.txt", "r");
+        fseek(pFile, offset, SEEK_SET);
+        fgets(cname, 20, pFile);
+        fseek(pFile, (20+offset), SEEK_SET);
+        fgets(age, 3, pFile);
+        fseek(pFile, (23+offset), SEEK_SET);
+        fgets(occupation, 30, pFile);
+        cout << cname << "," << age << "," << occupation;
+        //arr[friendIndex].printFriends();
+        fclose(pFile);
+    }
+    return;
+}
+
 
 HashEntry AdList::get(int i){
     if(i > this->TABLE_SIZE){
@@ -130,3 +192,9 @@ HashEntry AdList::get(int i){
 int AdList::getSize(){
     return this->TABLE_SIZE;
 }
+
+int AdList::getCount(){
+    return this->count;
+}
+
+

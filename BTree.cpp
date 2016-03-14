@@ -64,11 +64,6 @@ void BTree::splitNode(BTreeNode* n, BTreeNode::Person *p, int leafIndex){
             second->childPtr[i-3]->parent = second;
         }
         first->numKeys = 2;
-        /*
-        if(!first->childPtr[0]->leaf){
-            first->childPtr[leafIndex+1] = first->childPtr[leafIndex];
-            first->numChildren++;
-        }*/
     }
     //fill out first up to six children
     else if (!first->childPtr[0]->leaf){
@@ -86,25 +81,10 @@ void BTree::splitNode(BTreeNode* n, BTreeNode::Person *p, int leafIndex){
             //seg fault
             second->childPtr[i-3]->parent = second;
         }
-        first->numKeys = 2;
-        /*
-        for(int i = first->numChildren-1; i > leafIndex; i--){
-            if(i!=0)
-                first->keys[i] = first->keys[i-1];
-            first->childPtr[i+1] = first->childPtr[i];
-        }
-        first->keys[leafIndex] = p->name;
-    //new Childptr assignment is after second is made. Along with numChildren++
-        //first->childPtr[leafIndex+1] = first->childPtr[leafIndex];
-        //first->numChildren++;
-        first->numKeys++;
-        first->childPtr[leafIndex+1] = first->childPtr[leafIndex];
-        first->numChildren++;*/
     }
-    
+        first->numKeys = 2;
     //if n's parent is full -> recursive call.
     if(first->parent != NULL && first->parent->numChildren == 5){
-        cout << "\n\nrecursion is called\n\n";
         //six algorithm
         BTreeNode::Person* newKey = new BTreeNode::Person();
         for(int i = 0; i < 5; i++){
@@ -160,41 +140,6 @@ void BTree::splitNode(BTreeNode* n, BTreeNode::Person *p, int leafIndex){
         top->numChildren++;
     }
 }
-/*
-BTreeNode* BTree::make6(BTreeNode* full, BTreeNode::Person *p, int index){
-    assert(full->numChildren == 5);
-    BTreeNode *six = new BTreeNode(*full);
-    splitLeafHelper(full->childPtr[index], p, index);
-	BTreeNode *left = new BTreeNode();
-	BTreeNode *right = new BTreeNode();
-	BTreeNode *parent = new BTreeNode();
-	left->parent = parent;
-	right->parent = parent;
-	
-	//move childs to correct location
-	for(int i = 0; i < 3; i++){
-	    left->childPtr[i] = six->childPtr[i];
-	    left->numChildren++;
-	    left->childPtr[i]->parent = parent;
-	    right->childPtr[i] = six->childPtr[i+3];
-	    right->numChildren++;
-	    right->childPtr[i]->parent = parent;
-	}
-	//move keys to left and right
-	for(int i = 0; i < 2; i++){
-	    left->keys[i] = six->keys[i];
-	    left->numKeys++;
-	    right->keys[i] = six->keys[i+3];
-	    right->numKeys++;
-	}
-	
-	//update parent
-	parent->childPtr[0] = left;
-	parent->childPtr[1] = right;
-	parent->keys[0] = six->keys[2];
-	return parent;
-}
-*/
 //dataptr is the ptr to the file on disk (dataptr*53)
 void BTree::insert(std::string a, int dataPtr){
     //initialize new person
@@ -348,13 +293,6 @@ void BTree::insertLeaf(BTreeNode *n, BTreeNode::Person *p, int leafIndex){
 }
 
 
-
-
-
-
-
-
-
 //no need for nlogn sort. Sorting 3 or less items
 //should use a better sort if scaling
 //bubble sort?
@@ -394,9 +332,6 @@ void BTree::print(BTreeNode *n){
     }
   }
 }
-
-
-
 
 
 
@@ -481,6 +416,7 @@ void BTree::RangeQuery(string firstPerson, string lastPerson){
 							(lastPerson.compare(first->leaves[i].name) >= 0)) {
 				cout << first->leaves[i].name << " and dataptr  " << first->leaves[i].dataPtr << endl;
 				/*
+				int offset = first->leaves[i].dataPtr * 53;
 				char cname[20];
                 char age[3];
                 char occupation[30];

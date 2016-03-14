@@ -1,71 +1,171 @@
 #include "BTree.h"
-#include "AdList.h"
-#include <sstream>
-#include <fstream>
-#include <iostream>
-
-
-using namespace std;
-
-vector<string> split(string str, char delimiter)
-{
- vector<string> internal;
- stringstream ss(str);       // turn the string into a stream.
- string tok="";
- while(getline(ss, tok, delimiter))
+ #include "AdList.h"
+ #include <sstream>
+ #include <fstream>
+ #include <iostream>
+ #include <list>
+  
+  using namespace std;
+  
+ vector<string> split(string str, char delimiter)
  {
- 	internal.push_back(tok);
+ 	vector<string> internal;
+ 	stringstream ss(str);       // turn the string into a stream.
+ 	string tok="";
+ 	while(getline(ss, tok, delimiter))
+ 	{
+ 		internal.push_back(tok);
+ 	}
+ 
+ 	return internal;
+ }
+ 
+ void insertFile(ofstream &f, list<string> s, string name){
+ 	
+ 	for(list<string>::const_iterator it = s.begin(); it != s.end(); it++){
+        f << name << ",";
+        if((*it).compare("") == 0)
+			f << name << endl;
+        else
+        	f << *it << endl;
+    }
  }
 
- return internal;
-}
+ //To not overwrite what is file already, use r+ instead of w for fopen.
+  int main()
+  {
+	 	AdList* pointerA = new AdList();
+	 	AdList a = *(pointerA);
+	 	ifstream f;
+	 	FILE *pFile;
+	 	const char *profileName = "ProfileData.txt";
+	 	f.open("inputs/Generated1.txt", ios::in);
 
-
-//To not overwrite what is file already, use r+ instead of w for fopen.
-int main()
-{
- 	AdList* pointerA = new AdList();
- 	AdList a = *(pointerA);
- 	ifstream f;
- 	FILE *pFile;
- 	const char *profileName = "ProfileData.txt";
- 	f.open("inputs/Generated1.txt", ios::in);
-
- 	if(!f) 
- 		cerr << "File not found" << endl;
- 	else
- 	{
- 		string line;
- 		pFile = fopen(profileName, "w");
- 		while(std::getline(f, line))
- 		{
- 			vector<string> words = split(line, ',');
- 			a.insertData(words, pFile);
- 		}
-		 fclose(pFile);
-	}
-	BTree *t = new BTree();
-	HashEntry h;
-	int count = 0;
-	for(int i = 0; i < a.getSize(); i++){
-		h = a.get(i);
-		if(h.getName().compare("!") != 0){
-			cout << "    "<<count<<": "  << h.getName() << endl;
-			t->insert(h.getName(), h.getDataPtr());
-			++count;
-			//t->listPrint();
-			if(count >49)
-				t->print();
-			cout <<"\n\n";
+	 	if(!f) 
+	 		cerr << "File not found" << endl;
+	 	else
+	 	{
+	 		string line;
+	 		pFile = fopen(profileName, "w");
+	 		while(std::getline(f, line))
+	 		{
+	 			vector<string> words = split(line, ',');
+	 			a.insertData(words, pFile);
+	 		}
+			 fclose(pFile);
 		}
-		if(count == 100)
-			break;
+
+
+
+		ofstream myfile;
+		myfile.open("data.txt");
+		BTree *t = new BTree();
+		HashEntry h;
+		for(int i = 0; i < a.getSize(); i++){
+			h = a.get(i);
+			if(h.getName().compare("!") != 0){
+				insertFile(myfile, h.getList(), h.getName());
+				
+				//cout << h.getName();
+				//h.printFriends();
+				t->insert(h.getName(), h.getDataPtr());
+
+			}
+
+		}
+		myfile.close();
+
+	try{
+		while(true)
+		{
+			string str;
+			cin >> str;
+			if(cin.eof())
+			{
+				break;
+			}
+			if(str.compare("exit") == 0)
+			{
+				break;
+			}
+			else if(str.compare("update edges") == 0)
+			{
+				myfile.open("data.txt");
+				HashEntry h;
+				for(int i = 0; i < a.getSize(); i++){
+					h = a.get(i);
+					if(h.getName().compare("!") != 0)
+						insertFile(myfile, h.getList(), h.getName());
+				}
+				myfile.close();
+			}
+			else if(str.compare("insert") == 0)
+			{
+				cout << "Format: name age occupation" << endl;
+				string age;
+				string name;
+				string occupation;	
+				cin >> name >> age >> occupation;
+				vector<string> info;
+				info.push_back(name);
+				info.push_back(age);
+				info.push_back(occupation);
+		
+				pFile = fopen(profileName, "r+");
+				a.insertData(info, pFile);
+				fclose(pFile);
+				t->insert(name, a.getCount());
+			}
+			else if(str.compare("addfriend") == 0)
+			{
+				string friend1, friend2;
+				cin >> friend1 >> friend2;
+				a.addFriend(friend1, friend2);
+			}
+			
+			else if(str.compare("printAll") == 0)
+			{
+				a.printAll();
+			}
+			else if(str.compare("printSingle") == 0)
+			{
+				string name;
+				cin >> name;
+				a.printSingle(name);
+				cout << endl;
+			}
+			else if(str.compare("RangeQuery") == 0)
+			{
+				string start, end;
+				cin >> start >> end;
+				//t->RangeQuery(start,end);
+			}
+			else if(str.compare("ListFriendsInfo") == 0)
+			{
+				string name;
+				cin >> name;
+				a.ListFriendsInfo(name);
+				cout << "done" << endl;
+			}
+			else if(str.compare("graph") == 0){
+				system("RScript graph.R");
+    			system("open mygraphic.png");
+			}
+			else
+			{
+				cin.clear();
+				cout << "Inputed string format was incorrect" << endl;
+			}
+			
+		}
 	}
-	//everythin should not be inserted
-	pFile = fopen(profileName, "r+");
-//	a.printAll(pFile);
-	fclose(pFile);
+	catch(exception& ex)
+	{
+		cerr << ex.what() << endl;
+	}
+		//a.printAll();
+		//a.print();
 
 
-	return 0;
-} 
+		return 0;
+	} 

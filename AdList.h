@@ -25,10 +25,16 @@ class AdList{
 		void addFriend(std::string name, std::string nameFriend); //One friend
 		void updateFriend(std::string a, std::string b); //updates both friends' list
 		bool friendship(std::string a, std::string b); //true if a is a friend of b
+	
 		void print();
+		void printSingle(std::string name);
+		void printAll();
+		void ListFriendsInfo(std::string name);
+		int getHash(std::string name);
 		
 		HashEntry get(int i);
 		int getSize();
+		int getCount();
 };
 
 #endif
