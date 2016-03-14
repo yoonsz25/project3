@@ -53,11 +53,11 @@ int main()
 			cout << "    "<<count<<": "  << h.getName() << endl;
 			t->insert(h.getName(), h.getDataPtr());
 			++count;
-			if(count >0)
-				t->listPrint();
+			//t->listPrint();
+			t->print();
 			cout <<"\n\n";
 		}
-		if(count == 50)
+		if(count == 60)
 			break;
 	}
 	//everythin should not be inserted

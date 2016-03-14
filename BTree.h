@@ -15,22 +15,22 @@ class BTree{
         //come back and update return types of function. 
         //May need helper functions
     
-      void insert(std::string a, int dataPtr); // a = name. dataptr = disk pointer. Both make up person
-       
-      void split(BTreeNode* n, BTreeNode::Person* p, int i);
-      void split(BTreeNode* n, std::string key, int i);
-      
-      void splitRoot(BTreeNode *leaf, BTreeNode::Person* p);
-      void insertLeaf(BTreeNode *n, BTreeNode::Person *p, int leafIndex = -1);
-      void splitLeaf(BTreeNode *n, BTreeNode::Person *p, int leafIndex);
+       void insert(std::string a, int dataPtr); // a = name. dataptr = disk pointer. Both make up person
+       void splitNode(BTreeNode* n, BTreeNode::Person *p, int leafIndex);
+       void split(BTreeNode* n, BTreeNode::Person* p, int i);
+       std::string smallestName(BTreeNode* n);
+       void splitRoot(BTreeNode *leaf, BTreeNode::Person* p);
+       void insertLeaf(BTreeNode *n, BTreeNode::Person *p, int leafIndex = -1);
+       void splitLeaf(BTreeNode *n, BTreeNode::Person *p, int leafIndex);
 
-       
+       BTreeNode* make6(BTreeNode* full, BTreeNode::Person *p, int index);
+       void splitLeafHelper(BTreeNode *n, BTreeNode::Person *p, int leafIndex);
        void sort(BTreeNode::Person *leaves, int numLeaves);
        
        void print();
        void print(BTreeNode* n);
        void listPrint();
-
+    
        
        void printInternalNode(BTreeNode* n);
        

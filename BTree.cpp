@@ -7,6 +7,11 @@
 
 using namespace std;
 
+string BTree::smallestName(BTreeNode* n){
+    if(n->leaf)
+        return n->leaves[0].name;
+    return smallestName(n->childPtr[0]);
+}
 
  //nullptr evaluates to false in boolean operations
 
@@ -34,193 +39,96 @@ BTree::BTree(){
     root->leaf = true;
 }
 
-void BTree::split(BTreeNode* n, BTreeNode::Person* p, int index){
-    //base case = parent is null
-    if(n == nullptr){
-        BTreeNode* origin = new BTreeNode();
-        origin->childPtr[0] = root;
-        root = origin;
-        origin = root->childPtr[0];
-        origin->parent = root;
-        
-        BTreeNode* newOne = new BTreeNode();
-        root->childPtr[1] = newOne;
-        newOne->parent = root;
-        for(int i = 0; i<3; i++){
-            newOne->childPtr[i] = origin->childPtr[i+3];
-            newOne->childPtr[i]->parent = newOne;
-            if(i<2)
-                newOne->keys[i] = origin->keys[i+3];
-        }
-        
-        newOne->numChildren=3;
-        newOne->numKeys=2;
-        root->numChildren = 2;
-        root->keys[0] = newOne->childPtr[0]->leaves[0].name;
-        root->numKeys = 1;
-        
-        //update origin
-        BTreeNode* replacement = new BTreeNode();
-        for(int i = 0; i <3; i++){
-            replacement->childPtr[i] = origin->childPtr[i];
-            replacement->childPtr[i]->parent = replacement;
-        }
-        for(int i =0; i<2; i++){
-            replacement->keys[i] = origin->keys[i];
-        }
-        replacement->parent = root;
-        replacement->numChildren = 3;
-        replacement->numKeys = 2;
-        root->childPtr[0] = replacement;
-        //delete origin;
-        return;
+//n is the full internal node that needs to be split
+void BTree::splitNode(BTreeNode* n, BTreeNode::Person *p, int leafIndex){
+    BTreeNode* first = new BTreeNode(*n);
+    //create new internal node. right above leaves or no?
+    BTreeNode* second = new BTreeNode();
+    //move latter half of n's data into new internal node.
+    if(first->childPtr[0]->leaf){
+        splitLeafHelper(first->childPtr[leafIndex],p,leafIndex);
     }
-    //base case = parent has room to take in.
-    if(n->numChildren<5){
-        cout << "Base case of parent not full" << endl;
-        //code
-        BTreeNode* origin = n->childPtr[index];
-        for(int i = n->numChildren; i>index; i--){
-            n->childPtr[i] = n->childPtr[i+1];
-            if(i<n->numKeys)
-                n->keys[i] = n->keys[i+1];
+    for(int i = 3; i < 6; i++){
+        if(i<5){
+            second->keys[i-3] = first->keys[i];
+            second->numKeys++;
+            first->numKeys--;
         }
-        n->numChildren++;
-        n->numKeys++;
-        
-        BTreeNode* newOne = new BTreeNode();
-        newOne->parent = n;
-        for(int i = 0; i<3; i++){
-            newOne->childPtr[i] = origin->childPtr[i+3];
-            if(i<2)
-                newOne->keys[i] = origin->keys[i+3];
-        }
-        newOne->numChildren=3;
-        newOne->numKeys=2;
-        n->childPtr[index+1] = newOne;
-        for(BTreeNode* tmp = newOne; newOne!=NULL; tmp=tmp->childPtr[0]){
-            if(tmp->leaf)
-                n->keys[index+1] = tmp->leaves[0].name;
-        }
-        
-        BTreeNode* replacement = new BTreeNode();
-        for(int i = 0; i <3; i++){
-            replacement->childPtr[i] = origin->childPtr[i];
-            if(i<2)
-                replacement->keys[i] = origin->keys[i];
-        }
-        replacement->parent = n;
-        replacement->numChildren = 3;
-        replacement->numKeys = 2;
-        n->childPtr[index] = replacement;
-        //delete origin;
-        return;
+        second->childPtr[i-3] = first->childPtr[i];
+        second->numChildren++;
+        first->childPtr[i] = NULL;
+        first->numChildren--;
+        second->childPtr[i-3]->parent = second;
     }
-    
-    //recursive step
-    assert(n->numChildren >= 5);
-    cout << "recursion step" << endl;
-    cout << index << endl;
-    BTreeNode* copy = new BTreeNode(*n);
-    if(copy->childPtr[index]->leaf){
-        splitLeaf(copy->childPtr[index], p, index);
+    first->numKeys = 2;
+    //if n was root, make a new root.
+    if(n == root){
+        root = new BTreeNode();
+        root->keys[0] = smallestName(second);
+        root->numKeys++;
+        root->childPtr[0] = first;
+        root->childPtr[1] = second;
+        root->numChildren=2;
+        first->parent = root;
+        second->parent = root;
     }
-    if(copy->parent == NULL){
-        //delete n;
-        root = copy;
-        split(nullptr,p,0);
-        return;
-    }
-    if(copy->parent->numChildren == 5){
-        for(int j = 0; j < 5; j++){
-            if(n->parent->childPtr[j] == n){
-                //delete n;
-                split(n->parent, p, j);
-                break;
-            }
-        }
-    }
+    //else squeeze in new internal node.
     else{
-        //split up internal node right above leaf. and update the parent.
-        cout << "Else recursion" << endl;
-        BTreeNode* origin = copy;
-        n=copy->parent;
-        int nToCopy = 0;
-        for(; nToCopy < n->numChildren; nToCopy++){
-            if(n->childPtr[nToCopy]->leaves[0].name.compare(copy->leaves[0].name)==0){
-                break;
-            }
+        BTreeNode* top = first->parent;
+        int i = top->numChildren-1;
+        while(smallestName(first).compare(smallestName(top->childPtr[i]))!=0){
+            if(i!=0)
+                top->keys[i] = top->keys[i-1];
+            top->childPtr[i+1] = top->childPtr[i];
+            i--;
         }
-        for(int i = n->numChildren; i>nToCopy; i--){
-            n->childPtr[i] = n->childPtr[i-1];
+        top->childPtr[i] = first;
+        top->childPtr[i+1] = second;
+        second->parent = top;
+        top->keys[i] = smallestName(second);
+        top->numKeys++;
+        top->numChildren++;
         }
-        for(int i = n->numKeys; i>nToCopy;i--){
-            n->keys[i] = n->keys[i-1];
-        }
-        n->numChildren++;
-        n->numKeys++;    
-        BTreeNode* newOne = new BTreeNode();
-        newOne->parent = n;
-        for(int i = 0; i<3; i++){
-            newOne->childPtr[i] = origin->childPtr[i+3];
-            newOne->childPtr[i]->parent = newOne;
-            if(i<2)
-                newOne->keys[i] = origin->keys[i+3];
-        }
-        newOne->numChildren=3;
-        newOne->numKeys=2;
-        n->childPtr[nToCopy+1] = newOne;
-        n->keys[nToCopy+1] = newOne->leaves[0].name;
-
-        BTreeNode* replacement = new BTreeNode();
-        for(int i = 0; i <3; i++){
-            replacement->childPtr[i] = origin->childPtr[i];
-            replacement->childPtr[i]->parent = replacement;
-            if(i<2)
-                replacement->keys[i] = origin->keys[i];
-        }
-        replacement->parent = n;
-        replacement->numChildren = 3;
-        replacement->numKeys = 2;
-        n->childPtr[index] = replacement;
-        string newKey = "";
-        for(BTreeNode* t = newOne->childPtr[0]; t!=NULL; t = t->childPtr[0]){
-            if(t->leaf)
-                newKey = t->leaves[0].name;
-        }
-        n->keys[nToCopy] = newKey;
-        //update n's keys[]
-        /*
-        for(int i = n->numKeys-1; i>nToCopy; i--){
-            cout << n->keys[i-1] << endl;
-            n->keys[i] = n->keys[i-1];
-        }
-        cout << "This works" << endl;
-        for(BTreeNode* t = newOne->childPtr[0]; t!=NULL; t = t->childPtr[0]){
-            if(t->leaf)
-                n->keys[nToCopy] = t->leaves[0].name;
-        }
-        */
-        
-        BTreeNode *t;
-        
-        //each key moves over one, to include a new key.
-        //new key is the smallest value from newOne
-        //and indexes nToCopy+1 ~ numKeys-1 moves over +1
-        printInternalNode(n);
-        for(int i =0; i<n->numKeys; i++){
-            t = n->childPtr[i+1];
-            while(!t->leaf){
-                t = t->childPtr[0];
-            }
-            n->keys[i] = t->leaves[0].name;
-        }
-        
-        printInternalNode(n);
-        
-        return;
+    //if n's parent is full -> recursive call.
+    if(first->parent != NULL && first->parent->numChildren == 5){
+        splitNode(first->parent,p,leafIndex);
     }
 }
+/*
+BTreeNode* BTree::make6(BTreeNode* full, BTreeNode::Person *p, int index){
+    assert(full->numChildren == 5);
+    BTreeNode *six = new BTreeNode(*full);
+    splitLeafHelper(full->childPtr[index], p, index);
+	BTreeNode *left = new BTreeNode();
+	BTreeNode *right = new BTreeNode();
+	BTreeNode *parent = new BTreeNode();
+	left->parent = parent;
+	right->parent = parent;
+	
+	//move childs to correct location
+	for(int i = 0; i < 3; i++){
+	    left->childPtr[i] = six->childPtr[i];
+	    left->numChildren++;
+	    left->childPtr[i]->parent = parent;
+	    right->childPtr[i] = six->childPtr[i+3];
+	    right->numChildren++;
+	    right->childPtr[i]->parent = parent;
+	}
+	//move keys to left and right
+	for(int i = 0; i < 2; i++){
+	    left->keys[i] = six->keys[i];
+	    left->numKeys++;
+	    right->keys[i] = six->keys[i+3];
+	    right->numKeys++;
+	}
+	
+	//update parent
+	parent->childPtr[0] = left;
+	parent->childPtr[1] = right;
+	parent->keys[0] = six->keys[2];
+	return parent;
+}
+*/
 //dataptr is the ptr to the file on disk (dataptr*53)
 void BTree::insert(std::string a, int dataPtr){
     //initialize new person
@@ -244,7 +152,7 @@ void BTree::insert(std::string a, int dataPtr){
     //search for where item goes;
 	    while(n->leaf == false){
 	      for(i = 0; i < (n->numKeys); i++){
-	          if(a.compare(n->keys[i]) < 0){
+    	          if(a.compare(n->keys[i]) < 0){
 	       	    break;  
 	          }
 	          if(a.compare(n->keys[n->numKeys-1]) > 0){
@@ -258,11 +166,7 @@ void BTree::insert(std::string a, int dataPtr){
 	}
    insertLeaf(n, p, indexToLeaf);
 }
-/*
-void BTree::split(BTreeNode* n, string key, int index){
-    
-}
-*/
+
 void BTree::splitRoot(BTreeNode* r, BTreeNode::Person* p){
     BTreeNode* tmp = new BTreeNode();
     tmp->childPtr[0] = new BTreeNode();
@@ -309,7 +213,6 @@ void BTree::splitRoot(BTreeNode* r, BTreeNode::Person* p){
     tmp->numChildren = 2;
     tmp->numKeys = 1;
     this->root = tmp;
-   // print();
 }
 /* n = leaf(node) which is being split
 *  p = person to insert
@@ -317,11 +220,17 @@ void BTree::splitRoot(BTreeNode* r, BTreeNode::Person* p){
 */
 void BTree::splitLeaf(BTreeNode *n, BTreeNode::Person *p, int leafIndex){
 	assert(n->numLeaves == this->maxLeaves);
-	if(n->parent->numChildren == n->parent->maxChild){
-        split(n->parent, p, leafIndex);
+	if(n->parent->numChildren == 5){
+        splitNode(n->parent,p,leafIndex);
 		return;
 	}
-	BTreeNode *upperHalf = new BTreeNode();
+	else{
+	    splitLeafHelper(n, p, leafIndex);
+	}
+	
+}
+void BTree::splitLeafHelper(BTreeNode *n, BTreeNode::Person *p, int leafIndex){
+    BTreeNode *upperHalf = new BTreeNode();
 	upperHalf->leaf = true;
 	upperHalf->parent = n->parent;
 
@@ -343,7 +252,7 @@ void BTree::splitLeaf(BTreeNode *n, BTreeNode::Person *p, int leafIndex){
 	}
 	//make space for new leaf;
 	for(int i = n->parent->numChildren; i>leafIndex; i--){
-		n->parent->childPtr[i+1] = n->parent->childPtr[i];
+		n->parent->childPtr[i] = n->parent->childPtr[i-1];
 	}
 	++(n->parent->numChildren);
 	n->parent->childPtr[leafIndex+1] = upperHalf;
@@ -371,6 +280,13 @@ void BTree::insertLeaf(BTreeNode *n, BTreeNode::Person *p, int leafIndex){
 	    sort(n->leaves, n->numLeaves);
 	}
 }
+
+
+
+
+
+
+
 
 
 //no need for nlogn sort. Sorting 3 or less items
@@ -402,19 +318,16 @@ void BTree::print(BTreeNode *n){
   }
   if(n->leaf == false){
     for(int i = 0; i < n->numChildren; i++){
-      print(n->childPtr[i]);
+        print(n->childPtr[i]);
     }
   }
   if(n->leaf == true){
-     //cout << "number of leaves in this node " << n->numLeaves<< endl;
+     cout << "number of leaves in this node " << n->numLeaves<< endl;
     for(int i =0; i < n->numLeaves; i++){
       cout << n->leaves[i].name << " and dataptr " << n->leaves[i].dataPtr << endl;
     }
   }
 }
-
-
-
 
 
 
@@ -427,6 +340,8 @@ void BTree::listPrint(){
 		tmp = tmp->childPtr[0];
 	}
 	cout << "       First node is: \n";
+	if(!root->leaf)
+	    printInternalNode(tmp);
 	assert(tmp->leaf == true);
 	while(tmp != nullptr){
 	    cout << "\nNew Node with size " << tmp->numLeaves << ": \n";
