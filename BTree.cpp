@@ -41,28 +41,100 @@ BTree::BTree(){
 
 //n is the full internal node that needs to be split
 void BTree::splitNode(BTreeNode* n, BTreeNode::Person *p, int leafIndex){
-    BTreeNode* first = new BTreeNode(*n);
+    BTreeNode* first = n;
     //create new internal node. right above leaves or no?
     BTreeNode* second = new BTreeNode();
     //move latter half of n's data into new internal node.
     if(first->childPtr[0]->leaf){
+        first = new BTreeNode(*n);
         splitLeafHelper(first->childPtr[leafIndex],p,leafIndex);
-    }
-    for(int i = 3; i < 6; i++){
-        if(i<5){
-            second->keys[i-3] = first->keys[i];
-            second->numKeys++;
-            first->numKeys--;
+        //split first into first and second.
+        for(int i = 3; i < 6; i++){
+            if(i<5){
+                second->keys[i-3] = first->keys[i];
+                second->numKeys++;
+                first->numKeys--;
+            }
+            //first is not size 6 yet...
+            second->childPtr[i-3] = first->childPtr[i];
+            second->numChildren++;
+            first->childPtr[i] = NULL;
+            first->numChildren--;
+            //seg fault
+            second->childPtr[i-3]->parent = second;
         }
-        second->childPtr[i-3] = first->childPtr[i];
-        second->numChildren++;
-        first->childPtr[i] = NULL;
-        first->numChildren--;
-        second->childPtr[i-3]->parent = second;
+        first->numKeys = 2;
+        /*
+        if(!first->childPtr[0]->leaf){
+            first->childPtr[leafIndex+1] = first->childPtr[leafIndex];
+            first->numChildren++;
+        }*/
     }
-    first->numKeys = 2;
+    //fill out first up to six children
+    else if (!first->childPtr[0]->leaf){
+        cout << "reach" << endl;
+        for(int i = 3; i < 6; i++){
+            if(i<5){
+                second->keys[i-3] = first->keys[i];
+                second->numKeys++;
+                first->numKeys--;
+            }
+            //first is not size 6 yet...
+            second->childPtr[i-3] = first->childPtr[i];
+            second->numChildren++;
+            first->childPtr[i] = NULL;
+            first->numChildren--;
+            //seg fault
+            second->childPtr[i-3]->parent = second;
+            cout << "asdf" << endl;
+        }
+        first->numKeys = 2;
+        /*
+        for(int i = first->numChildren-1; i > leafIndex; i--){
+            if(i!=0)
+                first->keys[i] = first->keys[i-1];
+            first->childPtr[i+1] = first->childPtr[i];
+        }
+        first->keys[leafIndex] = p->name;
+    //new Childptr assignment is after second is made. Along with numChildren++
+        //first->childPtr[leafIndex+1] = first->childPtr[leafIndex];
+        //first->numChildren++;
+        first->numKeys++;
+        first->childPtr[leafIndex+1] = first->childPtr[leafIndex];
+        first->numChildren++;*/
+    }
+    
+    //if n's parent is full -> recursive call.
+    if(first->parent != NULL && first->parent->numChildren == 5){
+        cout << "\n\nrecursion is called\n\n";
+        //six algorithm
+        BTreeNode::Person* newKey = new BTreeNode::Person();
+        for(int i = 0; i < 5; i++){
+            if(smallestName(first).compare(smallestName(first->parent->childPtr[i]))==0){
+                newKey->name = smallestName(second);
+                BTreeNode* top = new BTreeNode(*first->parent);
+                for(int j = top->numChildren-1; j> i; j--){
+                    if(j>0)
+                        top->keys[j] = top->keys[j-1];
+                    top->childPtr[j+1] = top->childPtr[j];
+                }
+                top->keys[i] = newKey->name;
+                top->numKeys++;
+                top->childPtr[i]= first;
+                top->childPtr[i+1] = second;
+                first->parent = top;
+                second->parent = top;
+                top->numChildren++;
+                printInternalNode(first->parent);
+                splitNode(top,newKey,i);
+                cout << "now back to base one\n\n" << leafIndex << endl;;
+                return;
+            }
+        }
+    }
     //if n was root, make a new root.
     if(n == root){
+        cout << "This should create kevin" << endl;
         root = new BTreeNode();
         root->keys[0] = smallestName(second);
         root->numKeys++;
@@ -88,10 +160,6 @@ void BTree::splitNode(BTreeNode* n, BTreeNode::Person *p, int leafIndex){
         top->keys[i] = smallestName(second);
         top->numKeys++;
         top->numChildren++;
-        }
-    //if n's parent is full -> recursive call.
-    if(first->parent != NULL && first->parent->numChildren == 5){
-        splitNode(first->parent,p,leafIndex);
     }
 }
 /*

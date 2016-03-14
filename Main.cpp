@@ -54,10 +54,11 @@ int main()
 			t->insert(h.getName(), h.getDataPtr());
 			++count;
 			//t->listPrint();
-			t->print();
+			if(count >49)
+				//t->print();
 			cout <<"\n\n";
 		}
-		if(count == 60)
+		if(count == 51)
 			break;
 	}
 	//everythin should not be inserted
