@@ -97,7 +97,7 @@ bool AdList::friendship(string a, string b){
 }
 
 //update's "name"'s friends list by adding nameFriend.
-void AdList::addFriend(string name, string nameFriend){
+void AdList::addFriend(string &name, string &nameFriend){
     if(friendship(name, nameFriend)){
         return;
     }
@@ -153,8 +153,8 @@ void AdList::printSingle(string name){
     fseek(pFile, (23+offset), SEEK_SET);
     fgets(occupation, 30, pFile);
     cout << cname << "," << age << "," << occupation;
-    arr[index].printFriends();
     fclose(pFile);
+    arr[index].printFriends();
 }   
 
 void AdList::ListFriendsInfo(string name){

@@ -383,16 +383,18 @@ BTreeNode* BTree::find(BTreeNode* n, string name){
 	int i = 0;
 	BTreeNode *tmp = n;
 	while(tmp->leaf == false){
-		for(i = 0; i < tmp->numKeys; i++){
-		 if(name.compare(tmp->keys[i]) < 0){
-       		break;  
-          }
-          if(name.compare(tmp->keys[tmp->numKeys-1]) > 0){
-            i = n->numKeys-1;
-            break;
-          }
-		}
-		tmp = tmp->childPtr[i];
+        if(name.compare(tmp->keys[tmp->numKeys-1]) > 0){
+            tmp = tmp->childPtr[tmp->numKeys];
+        }
+        else{
+        for(i = 0; i < tmp->numKeys; i++){
+		 if(name.compare(tmp->keys[i]) <= 0){
+       	    tmp = tmp->childPtr[i];
+            break;  
+            }
+            
+		  }
+        }
 	}
 	assert(tmp->leaf == true);
 	return tmp;
@@ -402,20 +404,17 @@ BTreeNode* BTree::find(BTreeNode* n, string name){
 void BTree::RangeQuery(string firstPerson, string lastPerson){
 	BTreeNode *first = find(this->root, firstPerson);
 
-	int i;
-
+	int i=0;
 	for(i = 0; i < first->numLeaves; i++){
 		if(firstPerson.compare(first->leaves[i].name) <= 0){
 			break;
 		}
 	}
-
 	while(first != nullptr){
 		for(; i < first->numLeaves; i++){
 			if((firstPerson.compare(first->leaves[i].name) <= 0) && 
 							(lastPerson.compare(first->leaves[i].name) >= 0)) {
-				cout << first->leaves[i].name << " and dataptr  " << first->leaves[i].dataPtr << endl;
-				/*
+				
 				int offset = first->leaves[i].dataPtr * 53;
 				char cname[20];
                 char age[3];
@@ -428,15 +427,16 @@ void BTree::RangeQuery(string firstPerson, string lastPerson){
                 fgets(age, 3, pFile);
                 fseek(pFile, (23+offset), SEEK_SET);
                 fgets(occupation, 30, pFile);
-                cout << cname << "," << age << "," << occupation;
+                cout << cname << "," << age << "," << occupation << endl;
                 fclose(pFile);
-				*/
 			}
 			else{
 				//return because our current person is not between the 2 parameters
-				return;
+
+                return;
 			}
 		}
+
 		i = 0;
 		first = first->next;
 	}

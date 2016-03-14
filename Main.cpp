@@ -21,7 +21,6 @@
  }
  
  void insertFile(ofstream &f, list<string> s, string name){
- 	
  	for(list<string>::const_iterator it = s.begin(); it != s.end(); it++){
         f << name << ",";
         if((*it).compare("") == 0)
@@ -32,14 +31,27 @@
  }
 
  //To not overwrite what is file already, use r+ instead of w for fopen.
-  int main()
+  int main(int argc, char **argv)
   {
+  		const char *profileName = "ProfileData.txt";
+  		const char *input = "inputs/Generated1.txt";
+  		if(argc == 3){
+  			input = argv[1];
+  			profileName = argv[2];
+
+  		}
+  		else if(argc != 1){
+  			cerr << "Requires 0 inputs. " << endl;
+  			cerr <<"Or: input file and output file (arg 1 and arg 2 respectively)" << endl;
+  			exit(1);
+  		}
+  		
 	 	AdList* pointerA = new AdList();
 	 	AdList a = *(pointerA);
 	 	ifstream f;
 	 	FILE *pFile;
-	 	const char *profileName = "ProfileData.txt";
-	 	f.open("inputs/Generated1.txt", ios::in);
+	 	
+	 	f.open(input, ios::in);
 
 	 	if(!f) 
 	 		cerr << "File not found" << endl;
@@ -58,23 +70,18 @@
 
 
 		ofstream myfile;
-		myfile.open("data.txt");
 		BTree *t = new BTree();
 		HashEntry h;
 		for(int i = 0; i < a.getSize(); i++){
 			h = a.get(i);
 			if(h.getName().compare("!") != 0){
-				insertFile(myfile, h.getList(), h.getName());
-				
-				//cout << h.getName();
-				//h.printFriends();
 				t->insert(h.getName(), h.getDataPtr());
 
 			}
 
 		}
-		myfile.close();
-
+		//t->listPrint();
+		//t->RangeQuery("Alex", "John");
 	try{
 		while(true)
 		{
@@ -88,7 +95,7 @@
 			{
 				break;
 			}
-			else if(str.compare("update edges") == 0)
+			else if(str.compare("updateedges") == 0)
 			{
 				myfile.open("data.txt");
 				HashEntry h;
@@ -125,11 +132,14 @@
 			else if(str.compare("printBTree") == 0){
 				t->print();
 			}
+			else if(str.compare("listBTree") == 0){
+				t->listPrint();
+			}
 			else if(str.compare("printAll") == 0)
 			{
 				a.printAll();
 			}
-			else if(str.compare("printSingle") == 0)
+			else if(str.compare("printsingle") == 0)
 			{
 				string name;
 				cin >> name;
@@ -140,7 +150,7 @@
 			{
 				string start, end;
 				cin >> start >> end;
-				//t->RangeQuery(start,end);
+				t->RangeQuery(start,end);
 			}
 			else if(str.compare("ListFriendsInfo") == 0)
 			{
@@ -150,7 +160,7 @@
 				cout << "done" << endl;
 			}
 			else if(str.compare("graph") == 0){
-				system("RScript graph.R");
+				system("Rscript graph.R");
     			system("open mygraphic.png");
 			}
 			else
