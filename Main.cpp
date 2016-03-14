@@ -29,7 +29,7 @@ int main()
  	ifstream f;
  	FILE *pFile;
  	const char *profileName = "ProfileData.txt";
- 	f.open("inputs/Generated3.txt", ios::in);
+ 	f.open("inputs/Generated1.txt", ios::in);
 
  	if(!f) 
  		cerr << "File not found" << endl;
@@ -55,10 +55,10 @@ int main()
 			++count;
 			//t->listPrint();
 			if(count >49)
-				//t->print();
+				t->print();
 			cout <<"\n\n";
 		}
-		if(count == 51)
+		if(count == 100)
 			break;
 	}
 	//everythin should not be inserted

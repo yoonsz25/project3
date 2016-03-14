@@ -72,7 +72,6 @@ void BTree::splitNode(BTreeNode* n, BTreeNode::Person *p, int leafIndex){
     }
     //fill out first up to six children
     else if (!first->childPtr[0]->leaf){
-        cout << "reach" << endl;
         for(int i = 3; i < 6; i++){
             if(i<5){
                 second->keys[i-3] = first->keys[i];
@@ -86,7 +85,6 @@ void BTree::splitNode(BTreeNode* n, BTreeNode::Person *p, int leafIndex){
             first->numChildren--;
             //seg fault
             second->childPtr[i-3]->parent = second;
-            cout << "asdf" << endl;
         }
         first->numKeys = 2;
         /*
@@ -125,16 +123,16 @@ void BTree::splitNode(BTreeNode* n, BTreeNode::Person *p, int leafIndex){
                 first->parent = top;
                 second->parent = top;
                 top->numChildren++;
-                printInternalNode(first->parent);
+                if(top->parent == NULL){
+                    root=top;
+                }
                 splitNode(top,newKey,i);
-                cout << "now back to base one\n\n" << leafIndex << endl;;
                 return;
             }
         }
     }
     //if n was root, make a new root.
     if(n == root){
-        cout << "This should create kevin" << endl;
         root = new BTreeNode();
         root->keys[0] = smallestName(second);
         root->numKeys++;
@@ -468,8 +466,7 @@ BTreeNode* BTree::find(BTreeNode* n, string name){
 //prints out all names firstPerson < x < lastPerson
 void BTree::RangeQuery(string firstPerson, string lastPerson){
 	BTreeNode *first = find(this->root, firstPerson);
-	cout << "write the code which prints out all the information about the people. Requires the file pointer" << endl;
-	
+
 	int i;
 
 	for(i = 0; i < first->numLeaves; i++){
@@ -483,6 +480,21 @@ void BTree::RangeQuery(string firstPerson, string lastPerson){
 			if((firstPerson.compare(first->leaves[i].name) <= 0) && 
 							(lastPerson.compare(first->leaves[i].name) >= 0)) {
 				cout << first->leaves[i].name << " and dataptr  " << first->leaves[i].dataPtr << endl;
+				/*
+				char cname[20];
+                char age[3];
+                char occupation[30];
+                FILE *pFile;
+                pFile = fopen("ProfileData.txt", "r");
+                fseek(pFile, offset, SEEK_SET);
+                fgets(cname, 20, pFile);
+                fseek(pFile, (20+offset), SEEK_SET);
+                fgets(age, 3, pFile);
+                fseek(pFile, (23+offset), SEEK_SET);
+                fgets(occupation, 30, pFile);
+                cout << cname << "," << age << "," << occupation;
+                fclose(pFile);
+				*/
 			}
 			else{
 				//return because our current person is not between the 2 parameters
