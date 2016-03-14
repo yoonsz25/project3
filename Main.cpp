@@ -1,4 +1,4 @@
-#include "BTree.h"
+ #include "BTree.h"
  #include "AdList.h"
  #include <sstream>
  #include <fstream>
@@ -120,9 +120,11 @@
 			{
 				string friend1, friend2;
 				cin >> friend1 >> friend2;
-				a.addFriend(friend1, friend2);
+				a.updateFriend(friend1, friend2);
 			}
-			
+			else if(str.compare("printBTree") == 0){
+				t->print();
+			}
 			else if(str.compare("printAll") == 0)
 			{
 				a.printAll();
