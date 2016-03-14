@@ -29,7 +29,7 @@ int main()
  	ifstream f;
  	FILE *pFile;
  	const char *profileName = "ProfileData.txt";
- 	f.open("inputs/Generated1.txt", ios::in);
+ 	f.open("inputs/Generated3.txt", ios::in);
 
  	if(!f) 
  		cerr << "File not found" << endl;
@@ -44,21 +44,20 @@ int main()
  		}
 		 fclose(pFile);
 	}
-
 	BTree *t = new BTree();
 	HashEntry h;
 	int count = 0;
 	for(int i = 0; i < a.getSize(); i++){
 		h = a.get(i);
 		if(h.getName().compare("!") != 0){
+			cout << "    "<<count<<": "  << h.getName() << endl;
 			t->insert(h.getName(), h.getDataPtr());
 			++count;
-			cout << h.getName() << endl;
-			if(count >13)
+			if(count >0)
 				t->listPrint();
 			cout <<"\n\n";
 		}
-		if(count == 20)
+		if(count == 50)
 			break;
 	}
 	//everythin should not be inserted

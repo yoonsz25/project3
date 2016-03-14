@@ -27,6 +27,7 @@ class BTreeNode{
             BTreeNode *parent; // points to parent of current BTreeNode. If root, points to nullptr
             BTreeNode *next;   // points to the next BTreeNode with leaves for easy range queries. If leaf is false, this should point to nullptr
 
+            int maxChild;
             int numLeaves;
             int numChildren; // dont need if we have numKeys
             int numKeys;
@@ -35,6 +36,7 @@ class BTreeNode{
             
             BTreeNode();
             BTreeNode(const BTreeNode &n);
+            ~BTreeNode();
             
 };
 

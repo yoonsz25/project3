@@ -28,8 +28,7 @@ int AdList::hash(string str, int seed){
 void AdList::insertHash(string name){
     int index = hash(name);
     int i = 1;
-    while(arr[index].name.compare(name)==0){
-        cout << arr[index].name.compare(name) << endl;
+    while(arr[index].name.compare("!")!=0){
         index = hash(name,i);
         i++;
     }

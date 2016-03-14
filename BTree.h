@@ -7,7 +7,6 @@
 class BTree{
     private:
         BTreeNode* root;
-        int maxChild;
         int maxLeaves;
     public:
         BTree();

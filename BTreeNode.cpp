@@ -3,6 +3,7 @@
 //using namespace std;
 
 BTreeNode::BTreeNode(){
+    maxChild = 5;
     childPtr = new BTreeNode*[5];
     for(int i = 0; i < 5; i++) //was max child
         this->childPtr[i] = nullptr; 
@@ -22,9 +23,11 @@ BTreeNode::BTreeNode(){
 }
 
 BTreeNode::BTreeNode(const BTreeNode &n){
+    maxChild=6;
     childPtr = new BTreeNode*[6];
     for(int i = 0; i <5; i++){
         this->childPtr[i] = n.childPtr[i];
+        this->childPtr[i]->parent = this;
     }
     this->childPtr[6] = nullptr;
     keys = new std::string[5];
